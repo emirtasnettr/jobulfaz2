@@ -112,8 +112,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
 
     // Service role key ile insert yap (RLS bypass)
-    // Insert type: Omit<HeroSlider, 'created_at' | 'updated_at'>
-    // Bu, id, created_at, updated_at alanlarını içermemeli
+    // Insert type: Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'> & { id?: string }
+    // id optional çünkü UUID otomatik oluşturulur
     const insertData: Database['public']['Tables']['hero_sliders']['Insert'] = {
       title,
       description: description || null,
