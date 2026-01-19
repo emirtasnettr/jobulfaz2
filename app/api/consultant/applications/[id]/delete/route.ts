@@ -60,7 +60,7 @@ export async function DELETE(
       .from('profiles')
       .select('*')
       .eq('id', profileId)
-      .single();
+      .single<Profile>();
 
     if (profileError) {
       console.error('Profil sorgu hatası:', profileError);

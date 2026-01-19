@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
         }
       )
       .select()
-      .single();
+      .single<Profile>();
 
     if (profileCreateError || !profileData) {
       console.error('Error creating profile:', profileCreateError);
