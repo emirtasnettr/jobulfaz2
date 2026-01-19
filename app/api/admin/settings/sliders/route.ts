@@ -8,6 +8,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
+import { Profile } from '@/types/database';
 
 // GET: Tüm sliderları getir
 export async function GET() {
@@ -30,7 +31,7 @@ export async function GET() {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (profileError || !profile || profile.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (profileError) {
       console.error('Profile fetch error:', profileError);
@@ -213,7 +214,7 @@ export async function PUT(request: Request) {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (profileError || !profile || profile.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -281,7 +282,7 @@ export async function DELETE(request: Request) {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (profileError || !profile || profile.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
