@@ -7,6 +7,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
+import { Profile } from '@/types/database';
 
 export async function PUT(
   request: Request,
@@ -35,7 +36,7 @@ export async function PUT(
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (!profile || profile.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

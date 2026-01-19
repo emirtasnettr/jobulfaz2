@@ -8,6 +8,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
+import { Profile } from '@/types/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (profileError || !profile || !['CONSULTANT', 'ADMIN'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden - Only consultants can create customers' }, { status: 403 });

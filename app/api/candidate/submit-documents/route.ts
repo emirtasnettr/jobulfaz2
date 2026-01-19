@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { Profile } from '@/types/database';
 
 export async function POST() {
   try {
@@ -26,7 +27,7 @@ export async function POST() {
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (profileError || !profile || profile.role !== 'CANDIDATE') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

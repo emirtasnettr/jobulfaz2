@@ -7,6 +7,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
+import { Profile } from '@/types/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .select('role, id')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (!profile || profile.role !== 'MIDDLEMAN') {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
