@@ -8,6 +8,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
+import { Profile } from '@/types/database';
 
 export async function DELETE(
   request: NextRequest,
@@ -48,7 +49,7 @@ export async function DELETE(
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (!consultantProfile || !['CONSULTANT', 'ADMIN'].includes(consultantProfile.role)) {
       return NextResponse.json({ error: 'Bu işlem için yetkiniz yok' }, { status: 403 });
