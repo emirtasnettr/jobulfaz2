@@ -4,12 +4,15 @@
 
 export type UserRole = 'CANDIDATE' | 'MIDDLEMAN' | 'CONSULTANT' | 'ADMIN' | 'CUSTOMER';
 
+export type ApplicationStatus = 'NEW_APPLICATION' | 'EVALUATION' | 'APPROVED' | 'REJECTED' | 'UPDATE_REQUIRED';
+
 export interface Profile {
   id: string;
   full_name: string | null;
   role: UserRole;
   middleman_id: string | null;
   is_active: boolean | null;
+  application_status: ApplicationStatus | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,7 +43,7 @@ export interface Document {
   file_path: string;
   file_size: number | null;
   mime_type: string | null;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   reviewed_by: string | null;
   reviewed_at: string | null;
   review_notes: string | null;
@@ -62,7 +65,7 @@ export interface CustomerInfo {
   updated_at: string;
 }
 
-export type JobStatus = 'ACTIVE' | 'APPROVED' | 'CURRENT' | 'PAST';
+export type JobStatus = 'ACTIVE' | 'APPROVED' | 'CURRENT' | 'PAST' | 'REJECTED';
 
 export interface JobPosting {
   id: string;
