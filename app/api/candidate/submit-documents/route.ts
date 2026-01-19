@@ -7,6 +7,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { Profile, Document } from '@/types/database';
+import type { Database } from '@/lib/supabase/types';
 
 export async function POST(): Promise<NextResponse> {
   try {
@@ -60,15 +61,18 @@ export async function POST(): Promise<NextResponse> {
     }
 
     // Tüm DRAFT belgeleri ve henüz incelenmemiş PENDING belgeleri PENDING durumuna getir
+    // Update type: Partial<Omit<Document, 'id' | 'created_at' | 'updated_at'>>
+    // NOT: updated_at alanı otomatik olarak güncellenir, manuel eklemeye gerek yok
     const documentIds = documentsToSubmit.map(doc => doc.id);
+    const updateData: Database['public']['Tables']['documents']['Update'] = {
+      status: 'PENDING',
+      reviewed_by: null, // Güvence için null yap
+      reviewed_at: null,
+    };
+    
     const { error: updateError } = await supabase
       .from('documents')
-      .update({ 
-        status: 'PENDING',
-        reviewed_by: null, // Güvence için null yap
-        reviewed_at: null,
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('profile_id', user.id)
       .in('id', documentIds);
 

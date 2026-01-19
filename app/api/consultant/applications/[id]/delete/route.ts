@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile, Document } from '@/types/database';
+import type { Database } from '@/lib/supabase/types';
 
 export async function DELETE(
   request: NextRequest,
@@ -155,12 +156,15 @@ export async function DELETE(
     console.log('Deleted candidate_info record from database');
 
     // 5. Profil statüsünü NEW_APPLICATION'a döndür (RLS bypass)
+    // Update type: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>
+    // NOT: updated_at alanı otomatik olarak güncellenir, manuel eklemeye gerek yok
+    const updateData: Database['public']['Tables']['profiles']['Update'] = {
+      application_status: 'NEW_APPLICATION',
+    };
+    
     const { error: statusUpdateError } = await supabaseAdmin
       .from('profiles')
-      .update({
-        application_status: 'NEW_APPLICATION',
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', profileId);
 
     if (statusUpdateError) {

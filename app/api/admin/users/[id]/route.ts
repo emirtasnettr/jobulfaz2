@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile } from '@/types/database';
+import type { Database } from '@/lib/supabase/types';
 
 export async function PUT(
   request: Request,
@@ -58,9 +59,14 @@ export async function PUT(
     // Üyeliği pasif/aktif etme
     if (isActive !== undefined) {
       // Profiles tablosunda is_active kolonunu güncelle
+      // Update type: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>
+      const updateData: Database['public']['Tables']['profiles']['Update'] = {
+        is_active: isActive,
+      };
+      
       const { error: profileUpdateError } = await supabaseAdmin
         .from('profiles')
-        .update({ is_active: isActive })
+        .update(updateData)
         .eq('id', id);
 
       if (profileUpdateError) {

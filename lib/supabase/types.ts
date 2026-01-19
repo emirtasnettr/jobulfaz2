@@ -2,9 +2,16 @@
  * Supabase Database Types
  * 
  * Supabase client'ları için tip güvenliği sağlar
+ * 
+ * ÖNEMLİ: Bu type tanımları manuel olarak oluşturulmuştur.
+ * Supabase'in otomatik generate ettiği type'ları kullanmak için:
+ * 1. Supabase CLI ile type'ları generate edin: `npx supabase gen types typescript --project-id <project-id> > lib/supabase/database.types.ts`
+ * 2. Bu dosyayı silin ve generate edilen type'ları kullanın
+ * 
+ * ŞU ANKİ DURUM: Manuel type tanımları kullanılıyor. Bu, type safety sağlar
+ * ancak Supabase'in otomatik type inference'ı ile tam uyumlu olmayabilir.
  */
 
-import type { Database as SupabaseDatabase } from '@supabase/supabase-js';
 import type { 
   Profile, 
   Document, 
@@ -18,8 +25,16 @@ import type {
 
 /**
  * Database schema type definition
- * Supabase'in generate ettiği type'ları buraya ekleyebiliriz
- * Şimdilik manuel type mapping kullanıyoruz
+ * 
+ * Supabase'in Database type formatı:
+ * - Her tablo için Row, Insert, Update type'ları tanımlanmalı
+ * - Insert type'ları, otomatik oluşturulan alanları (id, created_at, updated_at) içermemeli
+ * - Update type'ları, Partial olmalı ve id, created_at, updated_at içermemeli
+ * 
+ * NOT: Eğer Supabase type'ları `never` döndürüyorsa, bu type tanımlarının
+ * Supabase'in beklediği formatta olmadığını gösterir. Bu durumda:
+ * 1. Supabase CLI ile type'ları regenerate edin
+ * 2. Veya bu type tanımlarını Supabase'in beklediği formata uygun hale getirin
  */
 export interface Database {
   public: {
@@ -65,7 +80,17 @@ export interface Database {
         Update: Partial<Omit<CustomerInfo, 'id' | 'created_at' | 'updated_at'>>;
       };
     };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
 }
-
-export type SupabaseClient = SupabaseDatabase<Database>['public'];

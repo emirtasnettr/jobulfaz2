@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile, HeroSlider } from '@/types/database';
+import type { Database } from '@/lib/supabase/types';
 
 // GET: Tüm sliderları getir
 export async function GET(): Promise<NextResponse> {
@@ -111,7 +112,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
 
     // Service role key ile insert yap (RLS bypass)
-    const insertData = {
+    // Insert type: Omit<HeroSlider, 'created_at' | 'updated_at'>
+    // Bu, id, created_at, updated_at alanlarını içermemeli
+    const insertData: Database['public']['Tables']['hero_sliders']['Insert'] = {
       title,
       description: description || null,
       image_url: image_url || null,
