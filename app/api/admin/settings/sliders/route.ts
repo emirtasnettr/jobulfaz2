@@ -206,7 +206,8 @@ export async function PUT(request: Request): Promise<NextResponse> {
     }
 
     // Sadece gönderilen alanları güncelle
-    const updateData: Partial<HeroSlider> = {};
+    // Update type: Partial<Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'>>
+    const updateData: Database['public']['Tables']['hero_sliders']['Update'] = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description || null;
     if (image_url !== undefined) updateData.image_url = image_url || null;
