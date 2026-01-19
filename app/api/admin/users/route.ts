@@ -45,9 +45,9 @@ export async function GET() {
     }
 
     // Tüm profilleri al (RLS bypass)
-    const { data: profiles, error: profilesError } = await supabaseAdmin
-      .from('profiles')
-      .select<Profile>('*')
+    const { data: profiles, error: profilesError } = await (supabaseAdmin
+      .from('profiles') as any)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (profilesError) {
@@ -58,13 +58,16 @@ export async function GET() {
       return NextResponse.json({ users: [] });
     }
 
+    // Type assertion for profiles array
+    const typedProfiles = profiles as Profile[];
+
     // Email bilgilerini almak için auth.users tablosuna eriş
     // Service role key ile auth.users'a erişebiliriz
-    const userIds = profiles.map(p => p.id);
+    const userIds = typedProfiles.map(p => p.id);
     
     // Her kullanıcı için email bilgisini al
     const usersWithEmail = await Promise.all(
-      profiles.map(async (prof) => {
+      typedProfiles.map(async (prof) => {
         try {
           const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(prof.id);
           return {
