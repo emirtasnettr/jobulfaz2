@@ -461,8 +461,10 @@ export default function CreateJobPostingPage() {
       }
 
       // İş ilanı oluştur
-      // firstWorkDate zaten validasyon kısmında tanımlanmış
-      const insertData: any = {
+      // Insert type: Omit<JobPosting, 'id' | 'created_at' | 'updated_at'> & { id?: string }
+      type JobPostingInsert = Omit<JobPosting, 'id' | 'created_at' | 'updated_at'> & { id?: string };
+      
+      const insertData: JobPostingInsert = {
         customer_id: user.id,
         title: formData.title,
         task: formData.task || null,
@@ -471,8 +473,25 @@ export default function CreateJobPostingPage() {
         city: formData.city || null,
         district: formData.district || null,
         job_type: formData.job_type || null,
-        start_date: null, // İlk iş günü artık kullanılmıyor
-        status: 'ACTIVE', // Yeni ilanlar aktif olarak başlar
+        contract_start_date: null,
+        contract_end_date: null,
+        part_time_start_date: null,
+        part_time_end_date: null,
+        seasonal_period_months: null,
+        monthly_budget_per_person: null,
+        daily_budget_per_person: null,
+        hourly_budget_per_person: null,
+        working_hours: null,
+        start_date: null,
+        status: 'ACTIVE',
+        rejection_reason: null,
+        rejected_by: null,
+        rejected_at: null,
+        new_offer_monthly_budget_per_person: null,
+        new_offer_daily_budget_per_person: null,
+        new_offer_total_without_vat: null,
+        new_offer_total_with_vat: null,
+        new_offer_accepted: null,
       };
 
       // İş tipine göre tarih ve bütçe alanlarını ekle
@@ -484,6 +503,11 @@ export default function CreateJobPostingPage() {
       } else if (formData.job_type === 'SEASONAL') {
         insertData.seasonal_period_months = formData.seasonal_period_months || null;
         insertData.monthly_budget_per_person = formData.seasonal_monthly_budget_per_person ? parseFloat(formData.seasonal_monthly_budget_per_person) : null;
+      } else if (formData.job_type === 'FULL_TIME') {
+        // Tam zamanlı işler için contract tarihleri kullanılabilir (eğer varsa)
+        insertData.contract_start_date = null;
+        insertData.contract_end_date = null;
+        insertData.monthly_budget_per_person = null;
       }
 
       const { error: insertError } = await supabase

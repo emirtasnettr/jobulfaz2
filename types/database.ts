@@ -71,12 +71,31 @@ export interface JobPosting {
   id: string;
   customer_id: string;
   title: string;
+  task: string | null;
   description: string | null;
   required_count: number; // Kaç kişiye ihtiyaç var
-  contract_start_date: string | null; // Sözleşme Başlangıç Tarihi
-  contract_end_date: string | null; // Sözleşme Bitiş Tarihi
+  city: string | null;
+  district: string | null;
+  job_type: 'FULL_TIME' | 'PART_TIME' | 'SEASONAL' | null;
+  contract_start_date: string | null; // Sözleşme Başlangıç Tarihi (Tam zamanlı için)
+  contract_end_date: string | null; // Sözleşme Bitiş Tarihi (Tam zamanlı için)
+  part_time_start_date: string | null; // Part-time başlangıç tarihi
+  part_time_end_date: string | null; // Part-time bitiş tarihi
+  seasonal_period_months: number | null; // Dönemsel işler için ay sayısı (1, 3, 6, 12)
+  monthly_budget_per_person: number | null; // Tam zamanlı ve dönemsel için aylık bütçe
+  daily_budget_per_person: number | null; // Günlük bütçe (eski kullanım)
+  hourly_budget_per_person: number | null; // Part-time için saatlik bütçe
+  working_hours: Record<string, { start: string; end: string }> | null; // Part-time için çalışma saatleri
   start_date: string | null; // Personelin ne zaman işe başlaması gerektiği
   status: JobStatus;
+  rejection_reason: 'NEW_OFFER' | 'PERSONNEL_SHORTAGE' | null;
+  rejected_by: string | null;
+  rejected_at: string | null;
+  new_offer_monthly_budget_per_person: number | null;
+  new_offer_daily_budget_per_person: number | null;
+  new_offer_total_without_vat: number | null;
+  new_offer_total_with_vat: number | null;
+  new_offer_accepted: boolean | null;
   created_at: string;
   updated_at: string;
 }

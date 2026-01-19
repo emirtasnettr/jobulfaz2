@@ -214,8 +214,9 @@ export default function JobRequestDetailPage() {
         } catch (err) {
           console.log('Logo yüklenemedi:', err);
         }
-      } catch (err: any) {
-        setError(err.message || 'Veriler yüklenirken hata oluştu');
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Veriler yüklenirken hata oluştu';
+        setError(errorMessage);
         console.error('Error loading data:', err);
       } finally {
         setLoading(false);
@@ -361,8 +362,9 @@ export default function JobRequestDetailPage() {
       setTimeout(() => {
         router.push('/dashboard/consultant/customers/job-requests');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'İş ilanı onaylanırken hata oluştu');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'İş ilanı onaylanırken hata oluştu';
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -392,12 +394,15 @@ export default function JobRequestDetailPage() {
       }
 
       // İş ilanını REJECTED durumuna geçir ve red nedeni ekle
-      const updateData: any = {
+      // Update type: Partial<Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>>
+      // NOT: updated_at otomatik güncellenir, manuel eklemeye gerek yok
+      type JobPostingUpdate = Partial<Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>>;
+      
+      const updateData: JobPostingUpdate = {
         status: 'REJECTED',
-        rejection_reason: rejectReason,
+        rejection_reason: rejectReason as 'NEW_OFFER' | 'PERSONNEL_SHORTAGE',
         rejected_by: user.id,
         rejected_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       };
 
       // Eğer yeni teklif varsa, yeni teklif tutarlarını kaydet
@@ -444,9 +449,10 @@ export default function JobRequestDetailPage() {
         router.push('/dashboard/consultant/customers/job-requests');
         router.refresh();
       }, 2000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Reject error:', err);
-      setError(err.message || 'İş ilanı reddedilirken hata oluştu');
+      const errorMessage = err instanceof Error ? err.message : 'İş ilanı reddedilirken hata oluştu';
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }

@@ -72,6 +72,7 @@ export interface Database {
       job_postings: {
         Row: JobPosting;
         // Insert: id optional çünkü UUID otomatik oluşturulur
+        // NOT: working_hours JSONB tipinde, Record<string, { start: string; end: string }> olarak kullanılır
         Insert: Omit<JobPosting, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>>;
       };

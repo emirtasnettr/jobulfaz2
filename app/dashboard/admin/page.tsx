@@ -859,7 +859,13 @@ export default function AdminDashboardPage() {
 
                   setIsUpdating(true);
                   try {
-                    const updateData: any = {};
+                    // API route'unu beklediği request body type'ı
+                    type UserUpdateRequest = {
+                      password?: string;
+                      isActive?: boolean;
+                    };
+                    
+                    const updateData: UserUpdateRequest = {};
                     if (newPassword.trim() !== '') {
                       if (newPassword.length < 6) {
                         alert('Şifre minimum 6 karakter olmalıdır');
