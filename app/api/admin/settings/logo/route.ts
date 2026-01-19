@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile, SiteSettings } from '@/types/database';
+import { updateRow, insertRow } from '@/lib/supabase/helpers';
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
@@ -78,31 +79,41 @@ export async function POST(request: Request): Promise<NextResponse> {
       .eq('id', '00000000-0000-0000-0000-000000000001')
       .single();
 
-    let updateError;
+    const settingsId = '00000000-0000-0000-0000-000000000001';
+    
     if (existing) {
       // Kayıt varsa güncelle
-      const { error } = await supabaseAdmin
-        .from('site_settings')
-        .update({ logo_url: logoUrl })
-        .eq('id', '00000000-0000-0000-0000-000000000001');
-      updateError = error;
+      const { error: updateError } = await updateRow(
+        supabaseAdmin,
+        'site_settings',
+        settingsId,
+        { logo_url: logoUrl }
+      );
+      
+      if (updateError) {
+        return NextResponse.json(
+          { error: `Logo kaydedilirken hata: ${updateError.message}` },
+          { status: 500 }
+        );
+      }
     } else {
       // Kayıt yoksa ekle
-      const { error } = await supabaseAdmin
-        .from('site_settings')
-        .insert({
-          id: '00000000-0000-0000-0000-000000000001',
+      const { error: insertError } = await insertRow(
+        supabaseAdmin,
+        'site_settings',
+        {
+          id: settingsId,
           logo_url: logoUrl,
           site_name: 'JobulAI',
-        });
-      updateError = error;
-    }
-
-    if (updateError) {
-      return NextResponse.json(
-        { error: `Logo kaydedilirken hata: ${updateError.message}` },
-        { status: 500 }
+        }
       );
+      
+      if (insertError) {
+        return NextResponse.json(
+          { error: `Logo kaydedilirken hata: ${insertError.message}` },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({ success: true, logoUrl });
