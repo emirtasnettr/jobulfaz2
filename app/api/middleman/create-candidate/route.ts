@@ -7,7 +7,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { Profile } from '@/types/database';
+import { Profile, CandidateInfo } from '@/types/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
     // Kısa bir bekleme ekleyelim (trigger'ın çalışması için)
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
+    const { error: profileError } = await (supabaseAdmin
+      .from('profiles') as any)
       .update({
         middleman_id: profile.id,
         full_name: fullName,
@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
     if (profileError) {
       console.error('Error updating profile:', profileError);
       // Eğer profile yoksa, manuel oluştur
-      const { error: insertError } = await supabaseAdmin
-        .from('profiles')
+      const { error: insertError } = await (supabaseAdmin
+        .from('profiles') as any)
         .insert({
           id: authUser.user.id,
           full_name: fullName,
@@ -125,8 +125,8 @@ export async function POST(request: NextRequest) {
 
     // Email'i candidate_info'ya kaydet
     await new Promise((resolve) => setTimeout(resolve, 200));
-    const { error: candidateInfoError } = await supabaseAdmin
-      .from('candidate_info')
+    const { error: candidateInfoError } = await (supabaseAdmin
+      .from('candidate_info') as any)
       .upsert({
         profile_id: authUser.user.id,
         email: email,

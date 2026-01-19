@@ -161,8 +161,8 @@ export async function DELETE(
     console.log('Deleted candidate_info record from database');
 
     // 5. Profil statüsünü NEW_APPLICATION'a döndür (RLS bypass)
-    const { error: statusUpdateError } = await supabaseAdmin
-      .from('profiles')
+    const { error: statusUpdateError } = await (supabaseAdmin
+      .from('profiles') as any)
       .update({
         application_status: 'NEW_APPLICATION',
         updated_at: new Date().toISOString(),

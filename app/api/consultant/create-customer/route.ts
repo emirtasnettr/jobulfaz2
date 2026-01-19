@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
     const userId = authUser.user.id;
 
     // Profile oluştur veya güncelle (RLS bypass ile)
-    const { data: profileData, error: profileCreateError } = await supabaseAdmin
-      .from('profiles')
+    const { data: profileData, error: profileCreateError } = await (supabaseAdmin
+      .from('profiles') as any)
       .upsert(
         {
           id: userId,
