@@ -8,7 +8,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
-import { Profile } from '@/types/database';
+import { Profile, Document } from '@/types/database';
 
 export async function DELETE(
   request: NextRequest,
@@ -79,8 +79,8 @@ export async function DELETE(
     console.log('Profil bulundu:', profileData.id, profileData.full_name);
 
     // 1. Belgeleri al ve kontrol et - RLS bypass
-    const { data: documents, error: documentsFetchError } = await supabaseAdmin
-      .from('documents')
+    const { data: documents, error: documentsFetchError } = await (supabaseAdmin
+      .from('documents') as any)
       .select('id, file_path, status')
       .eq('profile_id', profileId);
 
@@ -91,12 +91,15 @@ export async function DELETE(
       }, { status: 500 });
     }
 
+    // Type assertion for documents array
+    const typedDocuments = (documents || []) as Document[];
+
     // Tüm belgelerin reddedilmiş olup olmadığını kontrol et
-    if (documents && documents.length > 0) {
-      const allDocumentsRejected = documents.every((doc) => doc.status === 'REJECTED');
+    if (typedDocuments.length > 0) {
+      const allDocumentsRejected = typedDocuments.every((doc) => doc.status === 'REJECTED');
       
       if (!allDocumentsRejected) {
-        const nonRejectedCount = documents.filter((doc) => doc.status !== 'REJECTED').length;
+        const nonRejectedCount = typedDocuments.filter((doc) => doc.status !== 'REJECTED').length;
         return NextResponse.json({ 
           error: `Silme işlemi için önce tüm belgelerin reddedilmesi gerekmektedir. ${nonRejectedCount} belge henüz reddedilmemiş.` 
         }, { status: 400 });
@@ -104,8 +107,8 @@ export async function DELETE(
     }
 
     // 2. Storage'dan belgeleri sil (eğer belge varsa)
-    if (documents && documents.length > 0) {
-      const filePaths = documents
+    if (typedDocuments.length > 0) {
+      const filePaths = typedDocuments
         .map((doc) => doc.file_path)
         .filter((path) => path && path.trim() !== '');
 
@@ -140,7 +143,7 @@ export async function DELETE(
       }, { status: 500 });
     }
 
-    console.log(`Deleted ${documents?.length || 0} document records from database`);
+    console.log(`Deleted ${typedDocuments.length} document records from database`);
 
     // 4. Candidate_info tablosundan kayıtları sil (RLS bypass)
     const { error: candidateInfoDeleteError } = await supabaseAdmin

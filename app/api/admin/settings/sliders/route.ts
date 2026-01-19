@@ -38,8 +38,8 @@ export async function GET() {
     }
 
     // Tüm sliderları getir
-    const { data: sliders, error: slidersError } = await supabaseAdmin
-      .from('hero_sliders')
+    const { data: sliders, error: slidersError } = await (supabaseAdmin
+      .from('hero_sliders') as any)
       .select('*')
       .order('display_order', { ascending: true });
 
@@ -50,7 +50,10 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ sliders: sliders || [] });
+    // Type assertion for sliders array
+    const typedSliders = (sliders || []) as HeroSlider[];
+
+    return NextResponse.json({ sliders: typedSliders });
   } catch (error: any) {
     console.error('Sliders GET error:', error);
     return NextResponse.json(

@@ -6,7 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { Profile } from '@/types/database';
+import { Profile, Document } from '@/types/database';
 
 export async function POST() {
   try {
@@ -34,8 +34,8 @@ export async function POST() {
     }
 
     // Kullanıcının DRAFT belgelerini ve henüz consultant tarafından incelenmemiş PENDING belgelerini al
-    const { data: allDocuments, error: fetchError } = await supabase
-      .from('documents')
+    const { data: allDocuments, error: fetchError } = await (supabase
+      .from('documents') as any)
       .select('id, document_type, status, reviewed_by')
       .eq('profile_id', user.id)
       .in('status', ['DRAFT', 'PENDING']);
@@ -44,10 +44,13 @@ export async function POST() {
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
 
+    // Type assertion for documents array
+    const typedDocuments = (allDocuments || []) as Document[];
+
     // Sadece DRAFT veya reviewed_by null olan PENDING belgeleri filtrele
-    const documentsToSubmit = allDocuments?.filter((doc) => 
+    const documentsToSubmit = typedDocuments.filter((doc) => 
       doc.status === 'DRAFT' || (doc.status === 'PENDING' && !doc.reviewed_by)
-    ) || [];
+    );
 
     if (documentsToSubmit.length === 0) {
       return NextResponse.json({ 
