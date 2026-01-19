@@ -11,7 +11,7 @@ import Link from 'next/link';
 import LogoutButton from '@/components/logout-button';
 import DocumentRow from '@/components/document-row';
 import SubmitApplicationButton from '@/components/submit-application-button';
-import type { Profile, CandidateInfo } from '@/types/database';
+import type { Profile, CandidateInfo, Document } from '@/types/database';
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -48,6 +48,8 @@ export default async function ProfilePage() {
     .select('*')
     .eq('profile_id', user.id)
     .order('updated_at', { ascending: false }); // En son güncellenen önce gelsin
+  
+  const typedDocuments = (documents || []) as Document[];
 
   // Belge türlerini tanımla (sıra önemli)
   const documentTypes = [
@@ -261,7 +263,18 @@ export default async function ProfilePage() {
           {/* Belge Satırları */}
           <div className="space-y-4">
             {documentTypes.map((docType) => {
-              const document = documents?.find((doc) => doc.document_type === docType.type);
+              const foundDoc = typedDocuments.find((doc) => doc.document_type === docType.type);
+              // DocumentRow component'i status'u 'APPROVED' | 'REJECTED' | null bekliyor
+              // Database'deki Document type'ında 'DRAFT' ve 'PENDING' var, bu yüzden map ediyoruz
+              const document = foundDoc ? {
+                id: foundDoc.id,
+                file_name: foundDoc.file_name,
+                file_path: foundDoc.file_path,
+                status: (foundDoc.status === 'DRAFT' || foundDoc.status === 'PENDING') ? null : (foundDoc.status as 'APPROVED' | 'REJECTED' | null),
+                mime_type: foundDoc.mime_type,
+                created_at: foundDoc.created_at,
+                review_notes: foundDoc.review_notes,
+              } : undefined;
               return (
                 <DocumentRow
                   key={docType.type}

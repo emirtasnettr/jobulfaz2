@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import type { CandidateInfo, Document } from '@/types/database';
 
 export async function submitApplicationForEvaluation(profileId: string) {
   const supabase = await createClient();
@@ -25,7 +26,7 @@ export async function submitApplicationForEvaluation(profileId: string) {
       .from('profiles')
       .select('*')
       .eq('id', profileId)
-      .single();
+      .single<{ role: string; [key: string]: unknown }>();
 
     if (!profile || profile.role !== 'CANDIDATE') {
       return { error: 'Sadece adaylar başvuru gönderebilir' };
@@ -41,7 +42,7 @@ export async function submitApplicationForEvaluation(profileId: string) {
       .from('candidate_info')
       .select('*')
       .eq('profile_id', profileId)
-      .single();
+      .single<CandidateInfo>();
 
     if (!candidateInfo) {
       return { error: 'Lütfen önce aday bilgilerinizi tamamlayın' };
@@ -68,8 +69,9 @@ export async function submitApplicationForEvaluation(profileId: string) {
       .select('*')
       .eq('profile_id', profileId);
 
+    const typedDocuments = (documents || []) as Document[];
     const requiredDocumentTypes = ['KIMLIK', 'RESIDENCE', 'POLICE', 'CV'];
-    const uploadedDocumentTypes = documents?.map((doc) => doc.document_type) || [];
+    const uploadedDocumentTypes = typedDocuments.map((doc) => doc.document_type);
 
     for (const docType of requiredDocumentTypes) {
       if (!uploadedDocumentTypes.includes(docType)) {
@@ -78,8 +80,10 @@ export async function submitApplicationForEvaluation(profileId: string) {
     }
 
     // Başvuru statüsünü EVALUATION'a güncelle
-    const { error: updateError } = await supabase
-      .from('profiles')
+    // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+    // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+    const { error: updateError } = await (supabase
+      .from('profiles') as any)
       .update({
         application_status: 'EVALUATION',
         updated_at: new Date().toISOString(),
@@ -117,7 +121,7 @@ export async function deleteApplicationByConsultant(profileId: string) {
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .single<{ role: string }>();
 
     if (!consultantProfile || !['CONSULTANT', 'ADMIN'].includes(consultantProfile.role)) {
       return { error: 'Bu işlem için yetkiniz yok' };
@@ -128,7 +132,7 @@ export async function deleteApplicationByConsultant(profileId: string) {
       .from('profiles')
       .select('*')
       .eq('id', profileId)
-      .single();
+      .single<{ role: string; [key: string]: unknown }>();
 
     if (!candidateProfile || candidateProfile.role !== 'CANDIDATE') {
       return { error: 'Sadece aday başvuruları silinebilir' };
@@ -145,8 +149,9 @@ export async function deleteApplicationByConsultant(profileId: string) {
     }
 
     // 2. Storage'dan belgeleri sil (eğer belge varsa)
-    if (documents && documents.length > 0) {
-      const filePaths = documents
+    const typedDocuments = (documents || []) as Document[];
+    if (typedDocuments.length > 0) {
+      const filePaths = typedDocuments
         .map((doc) => doc.file_path)
         .filter((path) => path && path.trim() !== ''); // Boş path'leri filtrele
 
@@ -226,8 +231,10 @@ export async function deleteApplicationByConsultant(profileId: string) {
     }
 
     // 5. Profil statüsünü NEW_APPLICATION'a döndür (kullanıcı kaydı ve temel bilgiler kalacak)
-    const { error: statusUpdateError } = await supabase
-      .from('profiles')
+    // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+    // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+    const { error: statusUpdateError } = await (supabase
+      .from('profiles') as any)
       .update({
         application_status: 'NEW_APPLICATION',
         updated_at: new Date().toISOString(),

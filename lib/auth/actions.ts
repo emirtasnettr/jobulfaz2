@@ -63,8 +63,10 @@ export async function getUserProfile() {
   
   if (error || !profile) return null;
   
+  // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+  // tam uyumlu değil. Bu yüzden type assertion kullanıyoruz.
   return {
-    ...profile,
+    ...(profile as Record<string, unknown>),
     user,
   };
 }

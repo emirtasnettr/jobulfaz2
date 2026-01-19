@@ -37,9 +37,11 @@ export async function insertRow<T extends TableName>(
 ): Promise<{ data: TableRow<T> | null; error: PostgrestError | null }> {
   // Type assertion: Supabase'in type inference'ı bazen Insert type'ını
   // doğru çıkaramaz. Bu durumda Database type tanımlarını kontrol edin.
-  const result = await client
-    .from(tableName)
-    .insert(data as Database['public']['Tables'][T]['Insert'])
+  // NOT: Supabase'in Database type system'i manuel type tanımlarımızla
+  // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+  const result = await (client
+    .from(tableName) as any)
+    .insert(data)
     .select()
     .single();
   
@@ -64,9 +66,11 @@ export async function updateRow<T extends TableName>(
   id: string,
   data: TableUpdate<T>
 ): Promise<{ data: TableRow<T> | null; error: PostgrestError | null }> {
-  const result = await client
-    .from(tableName)
-    .update(data as Database['public']['Tables'][T]['Update'])
+  // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+  // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+  const result = await (client
+    .from(tableName) as any)
+    .update(data)
     .eq('id', id)
     .select()
     .single();
@@ -92,10 +96,12 @@ export async function upsertRow<T extends TableName>(
   data: TableInsert<T>,
   onConflict?: string
 ): Promise<{ data: TableRow<T> | null; error: PostgrestError | null }> {
-  const result = await client
-    .from(tableName)
+  // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+  // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+  const result = await (client
+    .from(tableName) as any)
     .upsert(
-      data as Database['public']['Tables'][T]['Insert'],
+      data,
       onConflict ? { onConflict } : undefined
     )
     .select()
