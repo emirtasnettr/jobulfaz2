@@ -12,7 +12,7 @@ import { Profile } from '@/types/database';
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
-) {
+): Promise<NextResponse> {
   try {
     // Params'ı Promise ise resolve et
     const resolvedParams = await Promise.resolve(params);
@@ -58,8 +58,8 @@ export async function PUT(
     // Üyeliği pasif/aktif etme
     if (isActive !== undefined) {
       // Profiles tablosunda is_active kolonunu güncelle
-      const { error: profileUpdateError } = await (supabaseAdmin
-        .from('profiles') as any)
+      const { error: profileUpdateError } = await supabaseAdmin
+        .from('profiles')
         .update({ is_active: isActive })
         .eq('id', id);
 
@@ -76,7 +76,8 @@ export async function PUT(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

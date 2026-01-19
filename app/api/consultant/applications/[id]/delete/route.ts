@@ -13,7 +13,7 @@ import { Profile, Document } from '@/types/database';
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> | { id: string } }
-) {
+): Promise<NextResponse> {
   try {
     // Params'ı Promise ise resolve et
     const resolvedParams = await Promise.resolve(params);
@@ -34,12 +34,6 @@ export async function DELETE(
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!serviceRoleKey) {
-      console.error('SUPABASE_SERVICE_ROLE_KEY bulunamadı');
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
 
     const supabaseAdmin = getAdminClient();
@@ -79,8 +73,8 @@ export async function DELETE(
     console.log('Profil bulundu:', profileData.id, profileData.full_name);
 
     // 1. Belgeleri al ve kontrol et - RLS bypass
-    const { data: documents, error: documentsFetchError } = await (supabaseAdmin
-      .from('documents') as any)
+    const { data: documents, error: documentsFetchError } = await supabaseAdmin
+      .from('documents')
       .select('id, file_path, status')
       .eq('profile_id', profileId);
 
@@ -161,8 +155,8 @@ export async function DELETE(
     console.log('Deleted candidate_info record from database');
 
     // 5. Profil statüsünü NEW_APPLICATION'a döndür (RLS bypass)
-    const { error: statusUpdateError } = await (supabaseAdmin
-      .from('profiles') as any)
+    const { error: statusUpdateError } = await supabaseAdmin
+      .from('profiles')
       .update({
         application_status: 'NEW_APPLICATION',
         updated_at: new Date().toISOString(),
@@ -179,10 +173,11 @@ export async function DELETE(
     console.log(`Successfully reset profile ${profileId} to NEW_APPLICATION status`);
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Delete application error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Bir hata oluştu';
     return NextResponse.json({ 
-      error: error.message || 'Bir hata oluştu' 
+      error: errorMessage 
     }, { status: 500 });
   }
 }

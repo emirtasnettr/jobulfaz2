@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile, SiteSettings } from '@/types/database';
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -72,25 +72,24 @@ export async function POST(request: Request) {
 
     // Site settings'e kaydet (RLS bypass ile)
     // Önce mevcut kaydı kontrol et
-    const existingResult = await (supabaseAdmin
-      .from('site_settings') as any)
+    const { data: existing } = await supabaseAdmin
+      .from('site_settings')
       .select('id')
       .eq('id', '00000000-0000-0000-0000-000000000001')
       .single();
-    const { data: existing } = existingResult as { data: { id: string } | null; error: any };
 
     let updateError;
     if (existing) {
       // Kayıt varsa güncelle
-      const { error } = await (supabaseAdmin
-        .from('site_settings') as any)
+      const { error } = await supabaseAdmin
+        .from('site_settings')
         .update({ logo_url: logoUrl })
         .eq('id', '00000000-0000-0000-0000-000000000001');
       updateError = error;
     } else {
       // Kayıt yoksa ekle
-      const { error } = await (supabaseAdmin
-        .from('site_settings') as any)
+      const { error } = await supabaseAdmin
+        .from('site_settings')
         .insert({
           id: '00000000-0000-0000-0000-000000000001',
           logo_url: logoUrl,
@@ -107,10 +106,11 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, logoUrl });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Logo upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Beklenmeyen bir hata oluştu';
     return NextResponse.json(
-      { error: error.message || 'Beklenmeyen bir hata oluştu' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

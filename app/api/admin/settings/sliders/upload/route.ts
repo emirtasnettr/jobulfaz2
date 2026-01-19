@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile } from '@/types/database';
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -25,16 +25,7 @@ export async function POST(request: Request) {
     }
 
     // Admin kontrolü (service role key ile RLS bypass)
-    let supabaseAdmin;
-    try {
-      supabaseAdmin = getAdminClient();
-    } catch (adminClientError: any) {
-      console.error('Admin client error:', adminClientError);
-      return NextResponse.json(
-        { error: 'Server configuration error: ' + adminClientError.message },
-        { status: 500 }
-      );
-    }
+    const supabaseAdmin = getAdminClient();
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -79,10 +70,11 @@ export async function POST(request: Request) {
       .getPublicUrl(filePath);
 
     return NextResponse.json({ success: true, imageUrl: urlData.publicUrl });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Image upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Beklenmeyen bir hata oluştu';
     return NextResponse.json(
-      { error: error.message || 'Beklenmeyen bir hata oluştu' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

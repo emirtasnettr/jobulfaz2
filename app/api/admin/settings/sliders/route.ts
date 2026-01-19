@@ -11,7 +11,7 @@ import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile, HeroSlider } from '@/types/database';
 
 // GET: Tüm sliderları getir
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -38,8 +38,8 @@ export async function GET() {
     }
 
     // Tüm sliderları getir
-    const { data: sliders, error: slidersError } = await (supabaseAdmin
-      .from('hero_sliders') as any)
+    const { data: sliders, error: slidersError } = await supabaseAdmin
+      .from('hero_sliders')
       .select('*')
       .order('display_order', { ascending: true });
 
@@ -54,17 +54,18 @@ export async function GET() {
     const typedSliders = (sliders || []) as HeroSlider[];
 
     return NextResponse.json({ sliders: typedSliders });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Sliders GET error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Beklenmeyen bir hata oluştu';
     return NextResponse.json(
-      { error: error.message || 'Beklenmeyen bir hata oluştu' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
 }
 
 // POST: Yeni slider ekle
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -80,32 +81,7 @@ export async function POST(request: Request) {
     }
 
     // Admin kontrolü (service role key ile RLS bypass)
-    let supabaseAdmin;
-    try {
-      // Service role key kontrolü
-      if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        console.error('❌ SUPABASE_SERVICE_ROLE_KEY environment variable tanımlı değil!');
-        return NextResponse.json(
-          { 
-            error: 'Server configuration error: SUPABASE_SERVICE_ROLE_KEY environment variable tanımlı değil. Lütfen .env.local dosyanızı kontrol edin.',
-            code: 'MISSING_SERVICE_ROLE_KEY'
-          },
-          { status: 500 }
-        );
-      }
-      
-      supabaseAdmin = getAdminClient();
-      console.log('✅ Admin client başarıyla oluşturuldu');
-    } catch (adminClientError: any) {
-      console.error('❌ Admin client error:', adminClientError);
-      return NextResponse.json(
-        { 
-          error: 'Server configuration error: ' + adminClientError.message,
-          code: 'ADMIN_CLIENT_ERROR'
-        },
-        { status: 500 }
-      );
-    }
+    const supabaseAdmin = getAdminClient();
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -135,9 +111,6 @@ export async function POST(request: Request) {
     });
 
     // Service role key ile insert yap (RLS bypass)
-    console.log('About to insert slider with supabaseAdmin client');
-    console.log('Service role key configured:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
-    
     const insertData = {
       title,
       description: description || null,
@@ -146,15 +119,12 @@ export async function POST(request: Request) {
       display_order: display_order || 0,
       is_active: is_active !== undefined ? is_active : true,
     };
-    
-    console.log('Insert data:', insertData);
 
-    const sliderResult = await (supabaseAdmin
-      .from('hero_sliders') as any)
+    const { data: newSlider, error: insertError } = await supabaseAdmin
+      .from('hero_sliders')
       .insert(insertData)
       .select()
       .single();
-    const { data: newSlider, error: insertError } = sliderResult as { data: HeroSlider | null; error: any };
 
     if (insertError) {
       console.error('❌ INSERT ERROR:', insertError);
@@ -188,17 +158,18 @@ export async function POST(request: Request) {
     console.log('✅ Slider başarıyla eklendi:', newSlider);
 
     return NextResponse.json({ success: true, slider: newSlider });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Slider POST error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Beklenmeyen bir hata oluştu';
     return NextResponse.json(
-      { error: error.message || 'Beklenmeyen bir hata oluştu' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
 }
 
 // PUT: Slider güncelle
-export async function PUT(request: Request) {
+export async function PUT(request: Request): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -232,7 +203,7 @@ export async function PUT(request: Request) {
     }
 
     // Sadece gönderilen alanları güncelle
-    const updateData: any = {};
+    const updateData: Partial<HeroSlider> = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description || null;
     if (image_url !== undefined) updateData.image_url = image_url || null;
@@ -241,13 +212,12 @@ export async function PUT(request: Request) {
     if (is_active !== undefined) updateData.is_active = is_active;
 
     // Slider güncelle
-    const sliderResult = await (supabaseAdmin
-      .from('hero_sliders') as any)
+    const { data: updatedSlider, error: updateError } = await supabaseAdmin
+      .from('hero_sliders')
       .update(updateData)
       .eq('id', id)
       .select()
       .single();
-    const { data: updatedSlider, error: updateError } = sliderResult as { data: HeroSlider | null; error: any };
 
     if (updateError) {
       return NextResponse.json(
@@ -257,17 +227,18 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json({ success: true, slider: updatedSlider });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Slider PUT error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Beklenmeyen bir hata oluştu';
     return NextResponse.json(
-      { error: error.message || 'Beklenmeyen bir hata oluştu' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
 }
 
 // DELETE: Slider sil
-export async function DELETE(request: Request) {
+export async function DELETE(request: Request): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -314,10 +285,11 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Slider DELETE error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Beklenmeyen bir hata oluştu';
     return NextResponse.json(
-      { error: error.message || 'Beklenmeyen bir hata oluştu' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

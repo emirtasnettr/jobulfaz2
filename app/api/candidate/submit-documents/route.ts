@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { Profile, Document } from '@/types/database';
 
-export async function POST() {
+export async function POST(): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -34,8 +34,8 @@ export async function POST() {
     }
 
     // Kullanıcının DRAFT belgelerini ve henüz consultant tarafından incelenmemiş PENDING belgelerini al
-    const { data: allDocuments, error: fetchError } = await (supabase
-      .from('documents') as any)
+    const { data: allDocuments, error: fetchError } = await supabase
+      .from('documents')
       .select('id, document_type, status, reviewed_by')
       .eq('profile_id', user.id)
       .in('status', ['DRAFT', 'PENDING']);
@@ -81,8 +81,9 @@ export async function POST() {
       submitted: documentsToSubmit.length,
       message: `${documentsToSubmit.length} belge onaya gönderildi`
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error submitting documents:', error);
-    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Sunucu hatası';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

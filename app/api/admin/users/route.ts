@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile } from '@/types/database';
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -22,13 +22,6 @@ export async function GET() {
 
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Service role key ile admin kontrolü yap (RLS bypass)
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!serviceRoleKey) {
-      console.error('SUPABASE_SERVICE_ROLE_KEY bulunamadı');
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
 
     const supabaseAdmin = getAdminClient();
@@ -45,8 +38,8 @@ export async function GET() {
     }
 
     // Tüm profilleri al (RLS bypass)
-    const { data: profiles, error: profilesError } = await (supabaseAdmin
-      .from('profiles') as any)
+    const { data: profiles, error: profilesError } = await supabaseAdmin
+      .from('profiles')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -88,7 +81,8 @@ export async function GET() {
       users: usersWithEmail,
       adminProfile: profile
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
