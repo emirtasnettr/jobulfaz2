@@ -91,3 +91,11 @@ export interface JobAssignment {
   created_at: string;
   updated_at: string;
 }
+
+export interface SiteSettings {
+  id: string;
+  logo_url: string | null;
+  site_name: string | null;
+  created_at: string;
+  updated_at: string;
+}

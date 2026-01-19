@@ -8,6 +8,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
+import { Profile, SiteSettings } from '@/types/database';
 
 export async function POST(request: Request) {
   try {
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .single<Profile>();
 
     if (profileError || !profile || profile.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -80,18 +81,19 @@ export async function POST(request: Request) {
     let updateError;
     if (existing) {
       // Kayıt varsa güncelle
-      const { error } = await supabaseAdmin
-        .from('site_settings')
+      const { error } = await (supabaseAdmin
+        .from('site_settings') as any)
         .update({ logo_url: logoUrl })
         .eq('id', '00000000-0000-0000-0000-000000000001');
       updateError = error;
     } else {
       // Kayıt yoksa ekle
-      const { error } = await supabaseAdmin
-        .from('site_settings')
+      const { error } = await (supabaseAdmin
+        .from('site_settings') as any)
         .insert({
           id: '00000000-0000-0000-0000-000000000001',
           logo_url: logoUrl,
+          site_name: 'JobulAI',
         });
       updateError = error;
     }
