@@ -16,6 +16,7 @@ interface SubmitApplicationButtonProps {
   candidateInfo: any;
   documents: Array<{ document_type: string }>;
   requiredDocumentTypes: string[];
+  onSuccess?: () => void;
 }
 
 export default function SubmitApplicationButton({
@@ -24,6 +25,7 @@ export default function SubmitApplicationButton({
   candidateInfo,
   documents,
   requiredDocumentTypes,
+  onSuccess,
 }: SubmitApplicationButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -89,7 +91,12 @@ export default function SubmitApplicationButton({
       if (result.error) {
         setError(result.error);
       } else {
-        router.refresh();
+        // Başarılı gönderimden sonra parent component'e haber ver ve sayfayı yenile
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.refresh();
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Bir hata oluştu');

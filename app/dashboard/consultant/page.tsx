@@ -1,16 +1,15 @@
 /**
- * Consultant Dashboard Sayfası
+ * Consultant Dashboard Sayfası - Modern Tasarım
  * 
  * Consultant'ların dashboard'u - Aday Başvuru Yönetimi
  */
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import LogoutButton from '@/components/logout-button';
 
 type ApplicationStatus = 'NEW_APPLICATION' | 'EVALUATION' | 'APPROVED' | 'REJECTED' | 'UPDATE_REQUIRED' | 'ALL';
 type DocumentType = 'CV' | 'POLICE' | 'RESIDENCE' | 'KIMLIK' | 'DIPLOMA';
@@ -20,7 +19,7 @@ interface Document {
   document_type: string;
   file_name: string;
   file_path: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'APPROVED' | 'REJECTED' | null;
   profile_id: string;
   mime_type: string | null;
 }
@@ -71,6 +70,37 @@ export default function ConsultantDashboardPage() {
     total: 0,
   });
   const [error, setError] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [customerMenuOpen, setCustomerMenuOpen] = useState(false);
+  const customerMenuRef = useRef<HTMLDivElement>(null);
+  const [candidateMenuOpen, setCandidateMenuOpen] = useState(false);
+  const candidateMenuRef = useRef<HTMLDivElement>(null);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [siteLogo, setSiteLogo] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
+  // Müşteri ekleme modal state
+  const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
+  const [customerFormData, setCustomerFormData] = useState({
+    email: '',
+    password: '',
+    full_name: '',
+  });
+  const [creatingCustomer, setCreatingCustomer] = useState(false);
+  const [createCustomerError, setCreateCustomerError] = useState<string | null>(null);
+  const [createCustomerSuccess, setCreateCustomerSuccess] = useState(false);
+
+  // Welcome card'ı 5 saniye sonra otomatik kapat
+  useEffect(() => {
+    if (showWelcome) {
+      const timer = setTimeout(() => {
+        setShowWelcome(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showWelcome]);
 
   // Tüm başvuruları yükle
   useEffect(() => {
@@ -99,7 +129,7 @@ export default function ConsultantDashboardPage() {
 
         setProfile(profileData);
 
-        // Tüm aday profillerini al (middleman_id ve updated_at dahil)
+        // Tüm aday profillerini al
         const { data: candidates } = await supabase
           .from('profiles')
           .select('*')
@@ -116,21 +146,19 @@ export default function ConsultantDashboardPage() {
         // Her aday için bilgileri ve belgeleri al
         const applicationsData: Application[] = await Promise.all(
           candidates.map(async (candidate) => {
-            // Aday bilgilerini al
             const { data: candidateInfo } = await supabase
               .from('candidate_info')
               .select('id, profile_id, phone, email, national_id, experience_years')
               .eq('profile_id', candidate.id)
               .single();
 
-            // Belgeleri al
+            // Tüm belgeleri göster (NULL, APPROVED, REJECTED)
             const { data: documents } = await supabase
               .from('documents')
               .select('*')
               .eq('profile_id', candidate.id)
               .order('created_at', { ascending: false });
 
-            // Middleman bilgisini al (varsa)
             let middleman = null;
             if (candidate.middleman_id) {
               const { data: middlemanProfile } = await supabase
@@ -147,7 +175,6 @@ export default function ConsultantDashboardPage() {
               }
             }
 
-            // Başvuru durumunu profiles tablosundan al
             const applicationStatus = (candidate.application_status || 'NEW_APPLICATION') as 
               'NEW_APPLICATION' | 'EVALUATION' | 'APPROVED' | 'REJECTED' | 'UPDATE_REQUIRED';
 
@@ -176,6 +203,20 @@ export default function ConsultantDashboardPage() {
 
         // İlk filtreleme
         filterApplications(applicationsData, activeFilter, searchQuery);
+
+        // Site logo'yu yükle
+        try {
+          const { data: settings, error: settingsError } = await supabase
+            .from('site_settings')
+            .select('logo_url')
+            .single();
+          
+          if (!settingsError && settings?.logo_url) {
+            setSiteLogo(settings.logo_url);
+          }
+        } catch (err) {
+          console.log('Logo yüklenemedi:', err);
+        }
       } catch (err: any) {
         setError(err.message || 'Veriler yüklenirken hata oluştu');
         console.error('Error loading data:', err);
@@ -187,16 +228,42 @@ export default function ConsultantDashboardPage() {
     loadData();
   }, [router, supabase]);
 
+  // Dropdown dışına tıklama kontrolü
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+      if (customerMenuRef.current && !customerMenuRef.current.contains(event.target as Node)) {
+        setCustomerMenuOpen(false);
+      }
+      if (candidateMenuRef.current && !candidateMenuRef.current.contains(event.target as Node)) {
+        setCandidateMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      router.push('/');
+      router.refresh();
+    }
+  };
+
   // Filtreleme ve arama
   const filterApplications = (apps: Application[], filter: ApplicationStatus, search: string = '') => {
     let filtered = apps;
 
-    // Statü filtresi
     if (filter !== 'ALL') {
       filtered = filtered.filter((app) => app.applicationStatus === filter);
     }
 
-    // Arama filtresi
     if (search.trim() !== '') {
       const searchLower = search.toLowerCase();
       filtered = filtered.filter((app) => {
@@ -222,50 +289,90 @@ export default function ConsultantDashboardPage() {
   const handleFilterClick = (filter: ApplicationStatus) => {
     setActiveFilter(filter);
     filterApplications(applications, filter, searchQuery);
+    setCurrentPage(1); // Filtre değiştiğinde sayfayı sıfırla
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     filterApplications(applications, activeFilter, query);
+    setCurrentPage(1); // Arama yapıldığında sayfayı sıfırla
   };
 
+  const handleViewApplication = (applicationId: string) => {
+    router.push(`/dashboard/consultant/applications/${applicationId}`);
+  };
+
+  const handleCreateCustomer = async () => {
+    setCreatingCustomer(true);
+    setCreateCustomerError(null);
+    setCreateCustomerSuccess(false);
+
+    try {
+      const response = await fetch('/api/consultant/create-customer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(customerFormData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Müşteri oluşturulurken hata oluştu');
+      }
+
+      setCreateCustomerSuccess(true);
+      setCustomerFormData({ email: '', password: '', full_name: '' });
+      
+      // 2 saniye sonra modalı kapat
+      setTimeout(() => {
+        setShowCreateCustomerModal(false);
+        setCreateCustomerSuccess(false);
+      }, 2000);
+    } catch (err: any) {
+      setCreateCustomerError(err.message || 'Müşteri oluşturulurken hata oluştu');
+    } finally {
+      setCreatingCustomer(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'NEW_APPLICATION':
         return (
-          <span className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded">
-            YENİ BAŞVURU
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+            Yeni Başvuru
           </span>
         );
       case 'EVALUATION':
         return (
-          <span className="px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded">
-            DEĞERLENDİRME
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+            Değerlendirme
           </span>
         );
       case 'APPROVED':
         return (
-          <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded">
-            ONAYLANDI
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+            Onaylandı
           </span>
         );
       case 'REJECTED':
         return (
-          <span className="px-3 py-1 bg-red-500 text-white text-xs font-semibold rounded">
-            REDDEDİLDİ
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+            Reddedildi
           </span>
         );
       case 'UPDATE_REQUIRED':
         return (
-          <span className="px-3 py-1 bg-orange-500 text-white text-xs font-semibold rounded">
-            BİLGİ/EVRAK GÜNCELLEME
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+            Güncelleme
           </span>
         );
       default:
         return (
-          <span className="px-3 py-1 bg-gray-500 text-white text-xs font-semibold rounded">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
             {status}
           </span>
         );
@@ -274,342 +381,767 @@ export default function ConsultantDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Yükleniyor...</p>
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full"></div>
+            </div>
+          </div>
+          <p className="text-gray-600 font-medium mt-4">Yükleniyor...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Jobul<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI</span>
-              </h1>
-              <p className="text-sm text-gray-600">Consultant Dashboard</p>
+    <div className="min-h-screen" style={{ backgroundColor: '#F4F9FE' }}>
+        {/* Header */}
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              {siteLogo ? (
+                <img
+                  src={siteLogo}
+                  alt="Site Logo"
+                  className="h-10 w-auto max-w-[200px] object-contain"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                  <span className="text-lg font-semibold text-white">J</span>
+                </div>
+              )}
+
+              {/* Aday Yönetimi Dropdown */}
+              <div className="relative" ref={candidateMenuRef}>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCandidateMenuOpen(!candidateMenuOpen);
+                    }}
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors flex items-center gap-1"
+                  >
+                    Aday Yönetimi
+                    <svg className={`w-4 h-4 transition-transform ${candidateMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+
+                {candidateMenuOpen && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-lg border border-gray-200 shadow-lg overflow-hidden z-50">
+                    <div className="py-1.5">
+                      <Link
+                        href="/dashboard/consultant"
+                        onClick={() => setCandidateMenuOpen(false)}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-blue-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Aday Yönetimi Ana Sayfa</p>
+                          <p className="text-xs text-gray-400">Dashboard</p>
+                        </div>
+                      </Link>
+                      
+                      <div className="h-px bg-gray-100 my-1"></div>
+
+                      <Link
+                        href="/applications"
+                        onClick={() => setCandidateMenuOpen(false)}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-purple-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Tüm Başvurular</p>
+                          <p className="text-xs text-gray-400">Başvuru listesi ve yönetimi</p>
+                        </div>
+                      </Link>
+
+                      <Link
+                        href="/documents/review"
+                        onClick={() => setCandidateMenuOpen(false)}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-green-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Belge İnceleme</p>
+                          <p className="text-xs text-gray-400">Belgeleri gözden geçir</p>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Müşteri Yönetimi Dropdown */}
+              <div className="relative" ref={customerMenuRef}>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCustomerMenuOpen(!customerMenuOpen);
+                    }}
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors flex items-center gap-1"
+                  >
+                    Müşteri Yönetimi
+                    <svg className={`w-4 h-4 transition-transform ${customerMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+
+                {customerMenuOpen && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-lg border border-gray-200 shadow-lg overflow-hidden z-50">
+                    <div className="py-1.5">
+                      <Link
+                        href="/dashboard/consultant/customers"
+                        onClick={() => setCustomerMenuOpen(false)}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-purple-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Müşteri Yönetimi</p>
+                          <p className="text-xs text-gray-400">Ana sayfa</p>
+                        </div>
+                      </Link>
+                      
+                      <div className="h-px bg-gray-100 my-1"></div>
+
+                      <button
+                        onClick={() => {
+                          setCustomerMenuOpen(false);
+                          setShowCreateCustomerModal(true);
+                        }}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-green-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Müşteri Ekle</p>
+                          <p className="text-xs text-gray-400">Yeni müşteri hesabı oluştur</p>
+                        </div>
+                      </button>
+
+                      <Link
+                        href="/dashboard/consultant/customers/job-requests"
+                        onClick={() => setCustomerMenuOpen(false)}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-blue-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Fırsat Talepleri</p>
+                          <p className="text-xs text-gray-400">Onay bekleyen fırsatlar</p>
+                        </div>
+                      </Link>
+
+                      <Link
+                        href="/dashboard/consultant/customers/active-jobs"
+                        onClick={() => setCustomerMenuOpen(false)}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-yellow-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Aktif Fırsatlar</p>
+                          <p className="text-xs text-gray-400">Onaylanmış fırsatlar</p>
+                        </div>
+                      </Link>
+
+                      <Link
+                        href="/dashboard/consultant/customers/past-contracts"
+                        onClick={() => setCustomerMenuOpen(false)}
+                        className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-gray-50 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Geçmiş Fırsatlar</p>
+                          <p className="text-xs text-gray-400">Tamamlanmış fırsatlar</p>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <LogoutButton />
+
+            {/* User Profile Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2.5 px-3 py-1.5 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">
+                    {profile?.full_name?.charAt(0) || 'C'}
+                  </span>
+                </div>
+                <div className="hidden md:block">
+                  <p className="text-sm font-medium text-gray-700">{profile?.full_name || 'Consultant'}</p>
+                </div>
+                <svg className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-lg border border-gray-200 shadow-lg overflow-hidden z-50">
+                  <div className="py-1.5">
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        router.push('/dashboard/settings');
+                      }}
+                      className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="w-7 h-7 rounded-md bg-blue-50 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Hesap Ayarları</p>
+                        <p className="text-xs text-gray-400">Şifre ve profil ayarları</p>
+                      </div>
+                    </button>
+                    
+                    <div className="h-px bg-gray-100 my-1"></div>
+                    
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-red-50 transition-colors"
+                    >
+                      <div className="w-7 h-7 rounded-md bg-red-50 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-red-600">Çıkış Yap</p>
+                        <p className="text-xs text-gray-400">Hesabınızdan çıkış yapın</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Hoş Geldiniz, {profile?.full_name || 'Consultant'}! 👋
-          </h2>
-          <p className="text-gray-600">
-            Aday başvurularını yönetebilir, belgeleri inceleyebilir ve onaylayabilirsiniz.
-          </p>
-        </div>
-
-        {/* Stats Cards - Clickable Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
-          <button
-            onClick={() => handleFilterClick('NEW_APPLICATION')}
-            className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all cursor-pointer border-2 ${
-              activeFilter === 'NEW_APPLICATION' ? 'border-blue-500' : 'border-transparent'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Yeni Başvuru</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.newApplication}</p>
-              </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🆕</span>
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Welcome Card */}
+        {showWelcome && (
+          <div className="relative mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border border-blue-100 p-6 text-gray-800 overflow-hidden">
+              <button
+                onClick={() => setShowWelcome(false)}
+                className="absolute top-3 right-3 w-6 h-6 rounded-md bg-white/80 hover:bg-white border border-gray-200 flex items-center justify-center transition-colors"
+                aria-label="Kapat"
+              >
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              <div className="relative z-10 pr-8">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <span className="text-xl">👋</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900">
+                      Hoş Geldiniz
+                    </h2>
+                    <p className="text-sm text-gray-600">{profile?.full_name || 'Consultant'}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Aday başvurularını yönetebilir, belgeleri inceleyebilir ve onaylayabilirsiniz.
+                </p>
               </div>
             </div>
-          </button>
-
-          <button
-            onClick={() => handleFilterClick('EVALUATION')}
-            className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all cursor-pointer border-2 ${
-              activeFilter === 'EVALUATION' ? 'border-yellow-500' : 'border-transparent'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Değerlendirme</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.evaluation}</p>
-              </div>
-              <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">⏳</span>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => handleFilterClick('APPROVED')}
-            className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all cursor-pointer border-2 ${
-              activeFilter === 'APPROVED' ? 'border-green-500' : 'border-transparent'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Onaylananlar</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
-              </div>
-              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">✅</span>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => handleFilterClick('REJECTED')}
-            className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all cursor-pointer border-2 ${
-              activeFilter === 'REJECTED' ? 'border-red-500' : 'border-transparent'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Reddedilenler</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
-              </div>
-              <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">❌</span>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => handleFilterClick('UPDATE_REQUIRED')}
-            className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all cursor-pointer border-2 ${
-              activeFilter === 'UPDATE_REQUIRED' ? 'border-orange-500' : 'border-transparent'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Güncelleme</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.updateRequired}</p>
-              </div>
-              <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">⚠️</span>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => handleFilterClick('ALL')}
-            className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all cursor-pointer border-2 ${
-              activeFilter === 'ALL' ? 'border-gray-500' : 'border-transparent'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Toplam</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">📊</span>
-              </div>
-            </div>
-          </button>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
           </div>
         )}
 
-        {/* Applications List */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900">
-              Aday Başvuru Yönetimi
-            </h3>
-            <p className="text-sm text-gray-600">
-              {filteredApplications.length} aday listeleniyor
-            </p>
-          </div>
-
-          {/* Filtre/Alanı */}
-          <div className="mb-6">
-            <input
-              type="text"
-              placeholder="Ara (Ad Soyad, Telefon, E-posta, TC Kimlik, Aracı...)"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          {filteredApplications.length > 0 ? (
-            <div className="overflow-x-auto">
-              {/* Table Header */}
-              <div className="bg-gray-100 border-b border-gray-200 px-6 py-4 grid grid-cols-9 gap-4 text-sm font-semibold text-gray-700 min-w-[1200px]">
-                <div className="col-span-1">AD SOYAD</div>
-                <div className="col-span-1">TELEFON</div>
-                <div className="col-span-1">TC KİMLİK</div>
-                <div className="col-span-1">E-POSTA</div>
-                <div className="col-span-1">ARAÇI</div>
-                <div className="col-span-1">İLK BAŞVURU</div>
-                <div className="col-span-1">SON İŞLEM</div>
-                <div className="col-span-1">BELGELER</div>
-                <div className="col-span-1">STATÜ</div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-5 mb-6">
+          {/* Yeni Başvuru */}
+          <button
+            onClick={() => handleFilterClick('NEW_APPLICATION')}
+            className={`group bg-[#FDFDFD] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+              activeFilter === 'NEW_APPLICATION' 
+                ? 'ring-2 ring-blue-300' 
+                : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
               </div>
-
-              {/* Applications Rows */}
-              <div className="divide-y divide-gray-200">
-                {filteredApplications.map((app) => (
-                  <ApplicationRow
-                    key={app.profile.id}
-                    application={app}
-                  />
-                ))}
-              </div>
+              <p className="text-sm font-medium text-gray-600">Yeni Başvuru</p>
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-600">Bu filtreye uygun başvuru bulunmuyor.</p>
+            <p className="text-4xl font-bold text-gray-900">{stats.newApplication}</p>
+          </button>
+
+          {/* Değerlendirme */}
+          <button
+            onClick={() => handleFilterClick('EVALUATION')}
+            className={`group bg-[#FDFDFD] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+              activeFilter === 'EVALUATION' 
+                ? 'ring-2 ring-yellow-300' 
+                : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center">
+                <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-600">Değerlendirme</p>
+            </div>
+            <p className="text-4xl font-bold text-gray-900">{stats.evaluation}</p>
+          </button>
+
+          {/* Onaylanan */}
+          <button
+            onClick={() => handleFilterClick('APPROVED')}
+            className={`group bg-[#FDFDFD] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+              activeFilter === 'APPROVED' 
+                ? 'ring-2 ring-green-300' 
+                : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-600">Onaylanan</p>
+            </div>
+            <p className="text-4xl font-bold text-gray-900">{stats.approved}</p>
+          </button>
+
+          {/* Reddedilen */}
+          <button
+            onClick={() => handleFilterClick('REJECTED')}
+            className={`group bg-[#FDFDFD] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+              activeFilter === 'REJECTED' 
+                ? 'ring-2 ring-red-300' 
+                : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-600">Reddedilen</p>
+            </div>
+            <p className="text-4xl font-bold text-gray-900">{stats.rejected}</p>
+          </button>
+
+          {/* Güncelleme */}
+          <button
+            onClick={() => handleFilterClick('UPDATE_REQUIRED')}
+            className={`group bg-[#FDFDFD] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+              activeFilter === 'UPDATE_REQUIRED' 
+                ? 'ring-2 ring-orange-300' 
+                : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-600">Güncelleme</p>
+            </div>
+            <p className="text-4xl font-bold text-gray-900">{stats.updateRequired}</p>
+          </button>
+
+          {/* Toplam */}
+          <button
+            onClick={() => handleFilterClick('ALL')}
+            className={`group bg-[#FDFDFD] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+              activeFilter === 'ALL' 
+                ? 'ring-2 ring-indigo-300' 
+                : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-600">Toplam</p>
+            </div>
+            <p className="text-4xl font-bold text-gray-900">{stats.total}</p>
+          </button>
+        </div>
+
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6 shadow-md">
+            <div className="flex items-center">
+              <span className="text-xl mr-3">⚠️</span>
+              <p className="font-medium">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Aday Başvuru Yönetimi */}
+        <div className="bg-white rounded-xl border border-gray-200 mt-6">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Aday Başvuru Yönetimi</h3>
+          </div>
+
+          {/* Header Actions */}
+          <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Ara (Ad Soyad, Telefon, E-posta, TC Kimlik, Aracı...)"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Rapor İndir
+              </button>
+              <select className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <option>2024</option>
+                <option>2023</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
+                    <div className="flex items-center gap-1">
+                      İsim
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Telefon
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    TC Kimlik
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Belgeler
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Durum
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    İşlemler
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredApplications
+                  .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                  .length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-12 text-center">
+                        <div className="text-gray-400 text-sm">
+                          {searchQuery ? 'Arama sonucu bulunamadı' : 'Henüz başvuru bulunmuyor'}
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredApplications
+                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .map((app) => {
+                        const documentTypes: DocumentType[] = ['CV', 'POLICE', 'RESIDENCE', 'KIMLIK', 'DIPLOMA'];
+                        const totalDocuments = documentTypes.length;
+                        const uploadedDocuments = app.documents.length;
+                        const approvedDocuments = app.documents.filter((doc) => doc.status === 'APPROVED').length;
+
+                        return (
+                          <tr key={app.profile.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
+                                  {app.profile.full_name?.charAt(0) || 'A'}
+                                </div>
+                                <div>
+                                  <div className="text-sm font-medium text-gray-900">{app.profile.full_name || 'İsimsiz'}</div>
+                                  {app.middleman && (
+                                    <div className="text-xs text-gray-500">Aracı: {app.middleman.full_name}</div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-600">{app.candidateInfo?.phone || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-600">{app.candidateInfo?.email || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-600">{app.candidateInfo?.national_id || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-600 font-medium">
+                                {approvedDocuments} / {uploadedDocuments} / {totalDocuments}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {getStatusBadge(app.applicationStatus)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <button
+                                onClick={() => handleViewApplication(app.profile.id)}
+                                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                              >
+                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                  )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {filteredApplications.length > 0 && (
+            <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-gray-600">
+                {(() => {
+                  const start = (currentPage - 1) * itemsPerPage + 1;
+                  const end = Math.min(currentPage * itemsPerPage, filteredApplications.length);
+                  return `${start} - ${end} arası, toplam ${filteredApplications.length} kayıt`;
+                })()}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  &lt;&lt;
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  &lt;
+                </button>
+                {(() => {
+                  const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+                  if (totalPages <= 1) return null;
+                  
+                  return (
+                    <>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                            currentPage === page
+                              ? 'bg-blue-600 text-white'
+                              : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </>
+                  );
+                })()}
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filteredApplications.length / itemsPerPage), prev + 1))}
+                  disabled={currentPage >= Math.ceil(filteredApplications.length / itemsPerPage)}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  &gt;
+                </button>
+                <button
+                  onClick={() => setCurrentPage(Math.ceil(filteredApplications.length / itemsPerPage))}
+                  disabled={currentPage >= Math.ceil(filteredApplications.length / itemsPerPage)}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  &gt;&gt;
+                </button>
+              </div>
             </div>
           )}
         </div>
-      </main>
+        </main>
+
+        {/* Müşteri Oluştur Modal */}
+        {showCreateCustomerModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Yeni Müşteri Oluştur</h3>
+                <button
+                  onClick={() => {
+                    setShowCreateCustomerModal(false);
+                    setCustomerFormData({ email: '', password: '', full_name: '' });
+                    setCreateCustomerError(null);
+                    setCreateCustomerSuccess(false);
+                  }}
+                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                >
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {createCustomerSuccess && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-700 font-medium">✅ Müşteri başarıyla oluşturuldu!</p>
+                </div>
+              )}
+
+              {createCustomerError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700 font-medium">⚠️ {createCustomerError}</p>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Ad Soyad <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={customerFormData.full_name}
+                    onChange={(e) => setCustomerFormData({ ...customerFormData, full_name: e.target.value })}
+                    placeholder="Müşteri Adı Soyadı"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    disabled={creatingCustomer}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    E-posta <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={customerFormData.email}
+                    onChange={(e) => setCustomerFormData({ ...customerFormData, email: e.target.value })}
+                    placeholder="ornek@email.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    disabled={creatingCustomer}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Şifre <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={customerFormData.password}
+                    onChange={(e) => setCustomerFormData({ ...customerFormData, password: e.target.value })}
+                    placeholder="En az 6 karakter"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    disabled={creatingCustomer}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Müşteri giriş yaparken bu şifreyi kullanacak</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleCreateCustomer}
+                  disabled={creatingCustomer || !customerFormData.email || !customerFormData.password || !customerFormData.full_name}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {creatingCustomer ? 'Oluşturuluyor...' : 'Müşteri Oluştur'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCreateCustomerModal(false);
+                    setCustomerFormData({ email: '', password: '', full_name: '' });
+                    setCreateCustomerError(null);
+                    setCreateCustomerSuccess(false);
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                  disabled={creatingCustomer}
+                >
+                  İptal
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
 
-// Application Row Component
-function ApplicationRow({
-  application,
-}: {
-  application: Application;
-}) {
-  const router = useRouter();
-  
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'NEW_APPLICATION':
-        return (
-          <span className="px-2 py-1 bg-blue-500 text-white text-xs font-semibold rounded">
-            YENİ BAŞVURU
-          </span>
-        );
-      case 'EVALUATION':
-        return (
-          <span className="px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded">
-            DEĞERLENDİRME
-          </span>
-        );
-      case 'APPROVED':
-        return (
-          <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded">
-            ONAYLANDI
-          </span>
-        );
-      case 'REJECTED':
-        return (
-          <span className="px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">
-            REDDEDİLDİ
-          </span>
-        );
-      case 'UPDATE_REQUIRED':
-        return (
-          <span className="px-2 py-1 bg-orange-500 text-white text-xs font-semibold rounded">
-            GÜNCELLEME
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2 py-1 bg-gray-500 text-white text-xs font-semibold rounded">
-            {status}
-          </span>
-        );
-    }
-  };
-
-  const documentTypes: DocumentType[] = ['CV', 'POLICE', 'RESIDENCE', 'KIMLIK', 'DIPLOMA'];
-  const totalDocuments = documentTypes.length;
-  const uploadedDocuments = application.documents.length;
-  const approvedDocuments = application.documents.filter((doc) => doc.status === 'APPROVED').length;
-
-  const handleRowClick = () => {
-    router.push(`/dashboard/consultant/applications/${application.profile.id}`);
-  };
-
-  const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('tr-TR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  };
-
-  return (
-    <div 
-      className="px-6 py-4 grid grid-cols-9 gap-4 items-center hover:bg-gray-50 transition-colors cursor-pointer min-w-[1200px]"
-      onClick={handleRowClick}
-    >
-      {/* Ad Soyad */}
-      <div className="col-span-1">
-        <div className="font-semibold text-gray-900 truncate">{application.profile.full_name || 'İsimsiz'}</div>
-      </div>
-
-      {/* Telefon */}
-      <div className="col-span-1">
-        <div className="text-gray-900 text-sm truncate">
-          {application.candidateInfo?.phone || '-'}
-        </div>
-      </div>
-
-      {/* TC Kimlik */}
-      <div className="col-span-1">
-        <div className="text-gray-900 text-sm truncate">
-          {application.candidateInfo?.national_id || '-'}
-        </div>
-      </div>
-
-      {/* E-posta */}
-      <div className="col-span-1">
-        <div className="text-gray-900 text-sm truncate">
-          {application.candidateInfo?.email || '-'}
-        </div>
-      </div>
-
-      {/* Aracı (Middleman) */}
-      <div className="col-span-1">
-        <div className="text-gray-900 text-sm truncate">
-          {application.middleman?.full_name || '-'}
-        </div>
-      </div>
-
-      {/* İlk Başvuru */}
-      <div className="col-span-1">
-        <div className="text-gray-900 text-sm">
-          {formatDate(application.profile.created_at)}
-        </div>
-      </div>
-
-      {/* Son İşlem */}
-      <div className="col-span-1">
-        <div className="text-gray-900 text-sm">
-          {formatDate(application.profile.updated_at)}
-        </div>
-      </div>
-
-      {/* Belgeler */}
-      <div className="col-span-1">
-        <div className="text-gray-900 text-sm font-medium">
-          {approvedDocuments} / {uploadedDocuments} / {totalDocuments}
-        </div>
-      </div>
-
-      {/* Statü */}
-      <div className="col-span-1">
-        {getStatusBadge(application.applicationStatus)}
-      </div>
-    </div>
-  );
-}

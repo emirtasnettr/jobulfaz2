@@ -37,16 +37,24 @@ export function createClient(request: NextRequest) {
             options?: Parameters<typeof response.cookies.set>[2];
           }[]
         ) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);
-          });
+          // Yeni response oluştur
           response = NextResponse.next({
             request: {
               headers: request.headers,
             },
           });
+          
+          // Cookie'leri response'a ekle
           cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
+            response.cookies.set(name, value, {
+              ...options,
+              // Cookie'lerin tüm path'lerde çalışması için
+              path: '/',
+              // SameSite ayarı
+              sameSite: 'lax' as const,
+              // Secure flag (HTTPS için true, HTTP için false)
+              secure: process.env.NODE_ENV === 'production',
+            });
           });
         },
       },

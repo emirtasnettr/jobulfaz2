@@ -252,7 +252,8 @@ export default async function ProfilePage() {
           {/* Info Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <p className="text-sm text-blue-800">
-              <strong>Bilgi:</strong> Her belge türünden bir belge yükleyebilirsiniz. Belgeler consultant'lar tarafından incelendikten sonra onaylanacaktır.
+              <strong>Bilgi:</strong> Her belge türünden bir belge yükleyebilirsiniz. 
+              Belgeler yüklendikten sonra consultant'lar tarafından incelenecek ve Kabul veya Red olarak işaretlenecektir.
             </p>
           </div>
 

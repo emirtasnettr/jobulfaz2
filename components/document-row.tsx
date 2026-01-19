@@ -16,7 +16,7 @@ interface Document {
   id: string;
   file_name: string;
   file_path: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'APPROVED' | 'REJECTED' | null;
   mime_type: string | null;
   created_at: string;
   review_notes: string | null;
@@ -29,6 +29,8 @@ interface DocumentRowProps {
   document: Document | undefined;
   profileId: string;
   canEdit?: boolean;
+  canView?: boolean;
+  canDownload?: boolean;
   applicationStatus?: string;
 }
 
@@ -39,31 +41,35 @@ export default function DocumentRow({
   document,
   profileId,
   canEdit = true,
+  canView = true,
+  canDownload = true,
   applicationStatus,
 }: DocumentRowProps) {
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null) => {
     switch (status) {
       case 'APPROVED':
         return 'bg-green-100 text-green-800';
       case 'REJECTED':
         return 'bg-red-100 text-red-800';
+      case null:
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string | null) => {
     switch (status) {
       case 'APPROVED':
-        return 'Onaylandı';
+        return 'Kabul';
       case 'REJECTED':
-        return 'Reddedildi';
+        return 'Red';
+      case null:
       default:
-        return 'Beklemede';
+        return 'Henüz İncelenmedi';
     }
   };
 
@@ -103,13 +109,19 @@ export default function DocumentRow({
             {document ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleView}
-                    disabled={loading}
-                    className="text-blue-600 hover:text-blue-700 font-medium text-sm disabled:opacity-50"
-                  >
-                    {loading ? 'Yükleniyor...' : document.file_name}
-                  </button>
+                  {canView ? (
+                    <button
+                      onClick={handleView}
+                      disabled={loading}
+                      className="text-blue-600 hover:text-blue-700 font-medium text-sm disabled:opacity-50"
+                    >
+                      {loading ? 'Yükleniyor...' : document.file_name}
+                    </button>
+                  ) : (
+                    <span className="text-gray-900 font-medium text-sm">
+                      {document.file_name}
+                    </span>
+                  )}
                   <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(document.status)}`}
                   >
@@ -135,7 +147,9 @@ export default function DocumentRow({
         <div className="flex items-center gap-3">
           {document ? (
             <>
-              <DocumentDownloadButton filePath={document.file_path} fileName={document.file_name} />
+              {canDownload && (
+                <DocumentDownloadButton filePath={document.file_path} fileName={document.file_name} />
+              )}
               {canEdit && !(applicationStatus === 'UPDATE_REQUIRED' && document.status === 'APPROVED') && (
                 <Link
                   href={`/documents/upload?type=${documentType}&replace=true&documentId=${document.id}&candidateId=${profileId}`}

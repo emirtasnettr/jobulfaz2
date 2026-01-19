@@ -15,7 +15,7 @@ interface DocumentControlProps {
     id: string;
     file_name: string;
     file_path: string;
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    status: 'APPROVED' | 'REJECTED' | null;
     mime_type: string | null;
   } | undefined;
   profileId: string;
@@ -30,8 +30,9 @@ export default function DocumentControl({
   onUpdate,
   applicationStatus,
 }: DocumentControlProps) {
-  // Yeni Başvuru ve Bilgi/Evrak Güncelleme statüsündeyse belgeler işaretlenemez
-  const canReview = applicationStatus !== 'NEW_APPLICATION' && applicationStatus !== 'UPDATE_REQUIRED';
+  // Consultant'lar sadece "Değerlendirme" statüsündeki başvuruların belgelerini işaretleyebilir
+  // "Yeni Başvuru" ve "Bilgi/Evrak Güncelleme" statülerinde işlem yapılamaz
+  const canReview = applicationStatus === 'EVALUATION';
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -203,13 +204,14 @@ export default function DocumentControl({
             </div>
           )}
 
-          {!canReview && (
+          {!canReview && applicationStatus === 'NEW_APPLICATION' && (
             <div className="text-xs text-gray-500 text-center py-2 bg-gray-50 rounded-lg border border-gray-200">
-              {applicationStatus === 'NEW_APPLICATION' 
-                ? 'Yeni başvurular için belge kontrolü yapılamaz'
-                : applicationStatus === 'UPDATE_REQUIRED'
-                ? 'Güncelleme bekleniyor - belge kontrolü yapılamaz'
-                : 'Belge kontrolü yapılamaz'}
+              Yeni başvurular için belge kontrolü yapılamaz
+            </div>
+          )}
+          {!canReview && applicationStatus === 'UPDATE_REQUIRED' && (
+            <div className="text-xs text-gray-500 text-center py-2 bg-gray-50 rounded-lg border border-gray-200">
+              Bilgi/Evrak güncelleme aşamasında belge kontrolü yapılamaz
             </div>
           )}
         </div>

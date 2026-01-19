@@ -179,6 +179,8 @@ function UploadDocumentPageContent() {
         console.log('New file name:', formData.file.name);
 
         // Eski belgeyi güncelle
+        // Belgeler direkt sisteme kaydedilir
+        // Trigger otomatik olarak file_path veya file_name değiştiğinde status'u NULL yapacak
         const { data: updatedDoc, error: updateError } = await supabase
           .from('documents')
           .update({
@@ -186,11 +188,11 @@ function UploadDocumentPageContent() {
             file_path: filePath,
             file_size: formData.file.size,
             mime_type: formData.file.type,
-            status: 'PENDING', // Değiştirildiği için tekrar beklemede
             reviewed_by: null,
             reviewed_at: null,
             review_notes: null,
             updated_at: new Date().toISOString(),
+            // status: Trigger otomatik olarak NULL yapacak (file_path değiştiği için)
           })
           .eq('id', documentIdToReplace)
           .eq('profile_id', targetProfileId)
@@ -267,7 +269,7 @@ function UploadDocumentPageContent() {
             file_path: filePath,
             file_size: formData.file.size,
             mime_type: formData.file.type,
-            status: 'PENDING',
+            // status otomatik olarak NULL olacak (default değer)
           });
 
         if (insertError) {
@@ -284,7 +286,7 @@ function UploadDocumentPageContent() {
 
       setSuccess(true);
       
-      // Sayfayı yenile ve cache'i temizle
+      // Başarı mesajını göster ve profil sayfasına yönlendir
       setTimeout(() => {
         // Hard redirect ile cache'i bypass et
         if (isMiddlemanAction) {
@@ -292,9 +294,10 @@ function UploadDocumentPageContent() {
           window.location.href = `/dashboard/middleman/candidates/${candidateIdFromUrl}`;
         } else {
           // Kullanıcı kendi belgesini yükledi, profil sayfasına dön
-          window.location.href = '/profile';
+          // Belgeleri Onaya Gönder butonunu görmesi için profil sayfasına yönlendir
+          window.location.href = '/profile#documents';
         }
-      }, 1500);
+      }, 2000);
     } catch (err: any) {
       setError(err.message || 'Belge yüklenirken hata oluştu');
       setUploading(false);
@@ -436,15 +439,18 @@ function UploadDocumentPageContent() {
 
           {success && (
             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-              ✅ Belge başarıyla yüklendi!
+              <p className="font-semibold mb-2">✅ Belge başarıyla yüklendi!</p>
+              <p className="text-sm">
+                Belgeniz sisteme kaydedildi. Consultant'lar tarafından incelendikten sonra Kabul veya Red olarak işaretlenecektir.
+              </p>
             </div>
           )}
 
           {/* Info Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>Bilgi:</strong> Yüklediğiniz belgeler consultant'lar tarafından incelenecek ve
-              onaylandıktan sonra aktif olacaktır.
+              <strong>Bilgi:</strong> Yüklediğiniz belge direkt sisteme kaydedilecektir. 
+              Consultant'lar belgenizi inceleyip Kabul veya Red olarak işaretleyecektir.
             </p>
           </div>
 

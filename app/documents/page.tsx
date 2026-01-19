@@ -44,25 +44,27 @@ export default async function DocumentsPage() {
     .eq('profile_id', user.id)
     .order('created_at', { ascending: false });
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null) => {
     switch (status) {
       case 'APPROVED':
         return 'bg-green-100 text-green-800';
       case 'REJECTED':
         return 'bg-red-100 text-red-800';
+      case null:
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string | null) => {
     switch (status) {
       case 'APPROVED':
-        return 'Onaylandı';
+        return 'Kabul';
       case 'REJECTED':
-        return 'Reddedildi';
+        return 'Red';
+      case null:
       default:
-        return 'Beklemede';
+        return 'Henüz İncelenmedi';
     }
   };
 
