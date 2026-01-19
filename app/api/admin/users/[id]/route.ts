@@ -60,12 +60,15 @@ export async function PUT(
     if (isActive !== undefined) {
       // Profiles tablosunda is_active kolonunu güncelle
       // Update type: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>
-      const updateData: Database['public']['Tables']['profiles']['Update'] = {
+      type ProfileUpdate = Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
+      const updateData: ProfileUpdate = {
         is_active: isActive,
       };
       
-      const { error: profileUpdateError } = await supabaseAdmin
-        .from('profiles')
+      // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+      // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+      const { error: profileUpdateError } = await (supabaseAdmin
+        .from('profiles') as any)
         .update(updateData)
         .eq('id', id);
 

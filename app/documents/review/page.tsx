@@ -27,7 +27,7 @@ export default async function DocumentReviewPage() {
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .single();
+    .single<{ role: string }>();
 
   if (!profile || !['CONSULTANT', 'ADMIN'].includes(profile.role)) {
     redirect('/');

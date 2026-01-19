@@ -10,6 +10,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import type { JobPosting } from '@/types/database';
 
 type JobType = 'FULL_TIME' | 'PART_TIME' | 'SEASONAL' | '';
 

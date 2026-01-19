@@ -114,7 +114,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     // Service role key ile insert yap (RLS bypass)
     // Insert type: Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'> & { id?: string }
     // id optional çünkü UUID otomatik oluşturulur
-    const insertData: Database['public']['Tables']['hero_sliders']['Insert'] = {
+    // NOT: Supabase'in Database type inference'ı manuel type'larımızla uyumlu değil
+    // Bu yüzden doğrudan HeroSlider'dan türetip type assertion kullanıyoruz
+    type HeroSliderInsert = Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'> & { id?: string };
+    const insertData: HeroSliderInsert = {
       title,
       description: description || null,
       image_url: image_url || null,
@@ -123,8 +126,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       is_active: is_active !== undefined ? is_active : true,
     };
 
-    const { data: newSlider, error: insertError } = await supabaseAdmin
-      .from('hero_sliders')
+    // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+    // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+    // NOT: Bu geçici bir çözüm. İdeal çözüm Supabase CLI ile type'ları generate etmek.
+    const { data: newSlider, error: insertError } = await (supabaseAdmin
+      .from('hero_sliders') as any)
       .insert(insertData)
       .select()
       .single();
@@ -207,7 +213,8 @@ export async function PUT(request: Request): Promise<NextResponse> {
 
     // Sadece gönderilen alanları güncelle
     // Update type: Partial<Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'>>
-    const updateData: Database['public']['Tables']['hero_sliders']['Update'] = {};
+    type HeroSliderUpdate = Partial<Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'>>;
+    const updateData: HeroSliderUpdate = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description || null;
     if (image_url !== undefined) updateData.image_url = image_url || null;
@@ -216,8 +223,10 @@ export async function PUT(request: Request): Promise<NextResponse> {
     if (is_active !== undefined) updateData.is_active = is_active;
 
     // Slider güncelle
-    const { data: updatedSlider, error: updateError } = await supabaseAdmin
-      .from('hero_sliders')
+    // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+    // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+    const { data: updatedSlider, error: updateError } = await (supabaseAdmin
+      .from('hero_sliders') as any)
       .update(updateData)
       .eq('id', id)
       .select()

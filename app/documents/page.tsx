@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import LogoutButton from '@/components/logout-button';
 import DocumentDownloadButton from '@/components/document-download-button';
+import type { Document } from '@/types/database';
 
 export default async function DocumentsPage() {
   const supabase = await createClient();
@@ -26,7 +27,7 @@ export default async function DocumentsPage() {
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .single();
+    .single<{ role: string }>();
 
   if (!profile) {
     redirect('/auth/login');
@@ -43,6 +44,8 @@ export default async function DocumentsPage() {
     .select('*')
     .eq('profile_id', user.id)
     .order('created_at', { ascending: false });
+  
+  const typedDocuments = (documents || []) as Document[];
 
   const getStatusColor = (status: string | null) => {
     switch (status) {
@@ -106,7 +109,7 @@ export default async function DocumentsPage() {
         {/* Documents List */}
         {documents && documents.length > 0 ? (
           <div className="space-y-4">
-            {documents.map((doc) => (
+            {typedDocuments.map((doc) => (
               <div
                 key={doc.id}
                 className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"

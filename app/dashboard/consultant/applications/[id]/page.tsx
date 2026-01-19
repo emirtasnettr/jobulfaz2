@@ -925,7 +925,10 @@ export default function ApplicationDetailPage() {
                     (doc) => doc.document_type === docType.type
                   );
                   
-                  const getStatusColor = (status: string) => {
+                  const getStatusColor = (status: string | null | undefined) => {
+                    if (!status || status === null) {
+                      return 'bg-gray-50 text-gray-700 border-gray-200';
+                    }
                     switch (status) {
                       case 'APPROVED':
                         return 'bg-green-50 text-green-700 border-green-200';
@@ -936,8 +939,8 @@ export default function ApplicationDetailPage() {
                     }
                   };
 
-                  const getCardBackgroundColor = (status: string | undefined) => {
-                    if (!status) {
+                  const getCardBackgroundColor = (status: string | null | undefined) => {
+                    if (!status || status === null) {
                       return 'bg-gray-100/40 border-gray-300';
                     }
                     switch (status) {
@@ -950,7 +953,10 @@ export default function ApplicationDetailPage() {
                     }
                   };
 
-                  const getStatusText = (status: string) => {
+                  const getStatusText = (status: string | null | undefined) => {
+                    if (!status || status === null) {
+                      return 'Yok';
+                    }
                     switch (status) {
                       case 'APPROVED':
                         return 'Onaylandı';
@@ -961,7 +967,10 @@ export default function ApplicationDetailPage() {
                     }
                   };
 
-                  const getStatusIcon = (status: string) => {
+                  const getStatusIcon = (status: string | null | undefined) => {
+                    if (!status || status === null) {
+                      return null;
+                    }
                     switch (status) {
                       case 'APPROVED':
                         return (

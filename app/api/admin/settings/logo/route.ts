@@ -9,7 +9,6 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile, SiteSettings } from '@/types/database';
-import { updateRow, insertRow } from '@/lib/supabase/helpers';
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
@@ -83,12 +82,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     
     if (existing) {
       // Kayıt varsa güncelle
-      const { error: updateError } = await updateRow(
-        supabaseAdmin,
-        'site_settings',
-        settingsId,
-        { logo_url: logoUrl }
-      );
+      // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+      // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+      type SiteSettingsUpdate = Partial<Omit<SiteSettings, 'id' | 'created_at' | 'updated_at'>>;
+      const updateData: SiteSettingsUpdate = { logo_url: logoUrl };
+      
+      const { error: updateError } = await (supabaseAdmin
+        .from('site_settings') as any)
+        .update(updateData)
+        .eq('id', settingsId);
       
       if (updateError) {
         return NextResponse.json(
@@ -98,15 +100,18 @@ export async function POST(request: Request): Promise<NextResponse> {
       }
     } else {
       // Kayıt yoksa ekle
-      const { error: insertError } = await insertRow(
-        supabaseAdmin,
-        'site_settings',
-        {
-          id: settingsId,
-          logo_url: logoUrl,
-          site_name: 'JobulAI',
-        }
-      );
+      // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+      // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+      type SiteSettingsInsert = Omit<SiteSettings, 'created_at' | 'updated_at'>;
+      const insertData: SiteSettingsInsert = {
+        id: settingsId,
+        logo_url: logoUrl,
+        site_name: 'JobulAI',
+      };
+      
+      const { error: insertError } = await (supabaseAdmin
+        .from('site_settings') as any)
+        .insert(insertData);
       
       if (insertError) {
         return NextResponse.json(

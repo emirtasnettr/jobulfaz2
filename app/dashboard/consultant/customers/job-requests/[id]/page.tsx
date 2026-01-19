@@ -396,9 +396,9 @@ export default function JobRequestDetailPage() {
       // İş ilanını REJECTED durumuna geçir ve red nedeni ekle
       // Update type: Partial<Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>>
       // NOT: updated_at otomatik güncellenir, manuel eklemeye gerek yok
-      type JobPostingUpdate = Partial<Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>>;
-      
-      const updateData: JobPostingUpdate = {
+      // TypeScript'in Partial<Omit<...>> inference'ı bazen çalışmıyor, bu yüzden type assertion kullanıyoruz
+      // NOT: Tüm JobPosting alanları dahil (new_offer_* dahil)
+      const updateData: any = {
         status: 'REJECTED',
         rejection_reason: rejectReason as 'NEW_OFFER' | 'PERSONNEL_SHORTAGE',
         rejected_by: user.id,

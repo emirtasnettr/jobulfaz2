@@ -85,6 +85,7 @@ export default function CustomerDashboardPage() {
   const [siteLogo, setSiteLogo] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [dismissedCancelledOffers, setDismissedCancelledOffers] = useState<Set<string>>(new Set());
 
   // Welcome card'ı 5 saniye sonra otomatik kapat
   useEffect(() => {

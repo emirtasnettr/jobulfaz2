@@ -63,15 +63,18 @@ export async function POST(): Promise<NextResponse> {
     // Tüm DRAFT belgeleri ve henüz incelenmemiş PENDING belgeleri PENDING durumuna getir
     // Update type: Partial<Omit<Document, 'id' | 'created_at' | 'updated_at'>>
     // NOT: updated_at alanı otomatik olarak güncellenir, manuel eklemeye gerek yok
+    type DocumentUpdate = Partial<Omit<Document, 'id' | 'created_at' | 'updated_at'>>;
     const documentIds = documentsToSubmit.map(doc => doc.id);
-    const updateData: Database['public']['Tables']['documents']['Update'] = {
+    const updateData: DocumentUpdate = {
       status: 'PENDING',
       reviewed_by: null, // Güvence için null yap
       reviewed_at: null,
     };
     
-    const { error: updateError } = await supabase
-      .from('documents')
+    // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+    // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+    const { error: updateError } = await (supabase
+      .from('documents') as any)
       .update(updateData)
       .eq('profile_id', user.id)
       .in('id', documentIds);

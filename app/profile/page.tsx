@@ -11,6 +11,7 @@ import Link from 'next/link';
 import LogoutButton from '@/components/logout-button';
 import DocumentRow from '@/components/document-row';
 import SubmitApplicationButton from '@/components/submit-application-button';
+import type { Profile, CandidateInfo } from '@/types/database';
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -28,7 +29,7 @@ export default async function ProfilePage() {
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single();
+    .single<Profile>();
 
   if (!profile) {
     redirect('/auth/login');
@@ -39,7 +40,7 @@ export default async function ProfilePage() {
     .from('candidate_info')
     .select('*')
     .eq('profile_id', user.id)
-    .single();
+    .single<CandidateInfo>();
 
   // Belgeleri al (her zaman güncel veriyi almak için)
   const { data: documents, error: documentsError } = await supabase

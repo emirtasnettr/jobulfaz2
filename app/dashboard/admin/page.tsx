@@ -17,6 +17,7 @@ export default function AdminDashboardPage() {
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState({
@@ -65,9 +66,10 @@ export default function AdminDashboardPage() {
         let response: Response;
         try {
           response = await fetch('/api/admin/users');
-        } catch (fetchError: any) {
+        } catch (fetchError) {
           console.error('Network error:', fetchError);
-          setError('Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.');
+          const errorMessage = fetchError instanceof Error ? fetchError.message : 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.';
+          setError(errorMessage);
           setLoading(false);
           return;
         }
@@ -118,12 +120,15 @@ export default function AdminDashboardPage() {
 
         // İstatistikleri hesapla
         if (usersList.length > 0) {
+          // Type tanımı: usersList'teki her kullanıcı için
+          type UserWithRole = { role: string; [key: string]: unknown };
+          
           setStats({
             total: usersList.length,
-            candidate: usersList.filter((u) => u.role === 'CANDIDATE').length,
-            middleman: usersList.filter((u) => u.role === 'MIDDLEMAN').length,
-            consultant: usersList.filter((u) => u.role === 'CONSULTANT').length,
-            admin: usersList.filter((u) => u.role === 'ADMIN').length,
+            candidate: usersList.filter((u: UserWithRole) => u.role === 'CANDIDATE').length,
+            middleman: usersList.filter((u: UserWithRole) => u.role === 'MIDDLEMAN').length,
+            consultant: usersList.filter((u: UserWithRole) => u.role === 'CONSULTANT').length,
+            admin: usersList.filter((u: UserWithRole) => u.role === 'ADMIN').length,
           });
           
           // Son kayıt olanları al (ilk 10)
@@ -138,9 +143,10 @@ export default function AdminDashboardPage() {
           });
           setRecentUsers([]);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error loading data:', err);
-        setError(err.message || 'Veriler yüklenirken bir hata oluştu');
+        const errorMessage = err instanceof Error ? err.message : 'Veriler yüklenirken bir hata oluştu';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -195,9 +201,10 @@ export default function AdminDashboardPage() {
       }
 
       setActionDropdownOpen(null);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error toggling user status:', error);
-      alert('Hata oluştu: ' + error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Hata oluştu';
+      alert('Hata oluştu: ' + errorMessage);
     }
   };
 
@@ -899,8 +906,9 @@ export default function AdminDashboardPage() {
                       const usersList = data.users || [];
                       setRecentUsers(usersList.slice(0, 10));
                     }
-                  } catch (error: any) {
-                    alert('Hata: ' + error.message);
+                  } catch (error) {
+                    const errorMessage = error instanceof Error ? error.message : 'Hata oluştu';
+                    alert('Hata: ' + errorMessage);
                     setIsUpdating(false);
                   } finally {
                     setIsUpdating(false);

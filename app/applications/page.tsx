@@ -408,11 +408,20 @@ function ApplicationRow({
             const document = application.documents.find(
               (doc) => doc.document_type === docType
             );
+            // DocumentControl component'i status'u 'APPROVED' | 'REJECTED' | null bekliyor
+            // Document type'ında 'PENDING' var, bu yüzden map ediyoruz
+            const mappedDocument = document ? {
+              id: document.id,
+              file_name: document.file_name,
+              file_path: document.file_path,
+              status: document.status === 'PENDING' ? null : (document.status as 'APPROVED' | 'REJECTED' | null),
+              mime_type: document.mime_type,
+            } : undefined;
             return (
               <DocumentControl
                 key={docType}
                 documentType={docType}
-                document={document}
+                document={mappedDocument}
                 profileId={application.profile.id}
                 onUpdate={onDocumentUpdate}
               />

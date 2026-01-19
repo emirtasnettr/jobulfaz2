@@ -27,6 +27,7 @@ export default function AdminUsersPage() {
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,9 +69,10 @@ export default function AdminUsersPage() {
         let response: Response;
         try {
           response = await fetch('/api/admin/users');
-        } catch (fetchError: any) {
+        } catch (fetchError) {
           console.error('❌ Network error:', fetchError);
-          setError('Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.');
+          const errorMessage = fetchError instanceof Error ? fetchError.message : 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.';
+          setError(errorMessage);
           setLoading(false);
           return;
         }
@@ -117,12 +119,15 @@ export default function AdminUsersPage() {
           setFilteredUsers(usersWithStatus);
 
           // İstatistikleri hesapla
+          // Type tanımı: usersWithStatus'teki her kullanıcı için
+          type UserWithRole = { role: string; [key: string]: unknown };
+          
           setStats({
             total: usersWithStatus.length,
-            candidate: usersWithStatus.filter((u) => u.role === 'CANDIDATE').length,
-            middleman: usersWithStatus.filter((u) => u.role === 'MIDDLEMAN').length,
-            consultant: usersWithStatus.filter((u) => u.role === 'CONSULTANT').length,
-            admin: usersWithStatus.filter((u) => u.role === 'ADMIN').length,
+            candidate: usersWithStatus.filter((u: UserWithRole) => u.role === 'CANDIDATE').length,
+            middleman: usersWithStatus.filter((u: UserWithRole) => u.role === 'MIDDLEMAN').length,
+            consultant: usersWithStatus.filter((u: UserWithRole) => u.role === 'CONSULTANT').length,
+            admin: usersWithStatus.filter((u: UserWithRole) => u.role === 'ADMIN').length,
           });
         } else {
           console.warn('⚠️  Kullanıcı listesi boş');
@@ -143,12 +148,15 @@ export default function AdminUsersPage() {
           setFilteredUsers(usersList);
 
           // İstatistikleri hesapla
+          // Type tanımı: usersList'teki her kullanıcı için
+          type UserWithRole = { role: string; [key: string]: unknown };
+          
           setStats({
             total: usersList.length,
-            candidate: usersList.filter((u) => u.role === 'CANDIDATE').length,
-            middleman: usersList.filter((u) => u.role === 'MIDDLEMAN').length,
-            consultant: usersList.filter((u) => u.role === 'CONSULTANT').length,
-            admin: usersList.filter((u) => u.role === 'ADMIN').length,
+            candidate: usersList.filter((u: UserWithRole) => u.role === 'CANDIDATE').length,
+            middleman: usersList.filter((u: UserWithRole) => u.role === 'MIDDLEMAN').length,
+            consultant: usersList.filter((u: UserWithRole) => u.role === 'CONSULTANT').length,
+            admin: usersList.filter((u: UserWithRole) => u.role === 'ADMIN').length,
           });
         } else {
           console.warn('⚠️  Kullanıcı listesi boş!');
@@ -162,13 +170,14 @@ export default function AdminUsersPage() {
             admin: 0,
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('❌ Error loading data:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Veriler yüklenirken bir hata oluştu';
         console.error('Error details:', {
-          message: err.message,
-          stack: err.stack,
+          message: errorMessage,
+          stack: err instanceof Error ? err.stack : undefined,
         });
-        setError(err.message || 'Veriler yüklenirken bir hata oluştu');
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -272,9 +281,10 @@ export default function AdminUsersPage() {
       }
 
       setActionDropdownOpen(null);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error toggling user status:', error);
-      alert('Hata oluştu: ' + error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Hata oluştu';
+      alert('Hata oluştu: ' + errorMessage);
     }
   };
 
@@ -839,8 +849,9 @@ export default function AdminUsersPage() {
                     // Başarılı - modal'ı kapat ve sayfayı yenile
                     setEditModalOpen(false);
                     window.location.reload();
-                  } catch (error: any) {
-                    alert('Hata: ' + error.message);
+                  } catch (error) {
+                    const errorMessage = error instanceof Error ? error.message : 'Hata oluştu';
+                    alert('Hata: ' + errorMessage);
                     setIsUpdating(false);
                   }
                 }}

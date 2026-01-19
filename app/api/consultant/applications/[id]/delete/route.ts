@@ -158,12 +158,15 @@ export async function DELETE(
     // 5. Profil statüsünü NEW_APPLICATION'a döndür (RLS bypass)
     // Update type: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>
     // NOT: updated_at alanı otomatik olarak güncellenir, manuel eklemeye gerek yok
-    const updateData: Database['public']['Tables']['profiles']['Update'] = {
+    type ProfileUpdate = Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
+    const updateData: ProfileUpdate = {
       application_status: 'NEW_APPLICATION',
     };
     
-    const { error: statusUpdateError } = await supabaseAdmin
-      .from('profiles')
+    // Type assertion: Supabase'in Database type system'i manuel type tanımlarımızla
+    // tam uyumlu değil. Bu yüzden geçici olarak as any kullanıyoruz.
+    const { error: statusUpdateError } = await (supabaseAdmin
+      .from('profiles') as any)
       .update(updateData)
       .eq('id', profileId);
 
