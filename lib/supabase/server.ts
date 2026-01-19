@@ -9,6 +9,8 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import type { Database } from './types';
+import { getSupabaseUrl, getSupabaseAnonKey } from '@/lib/env';
 
 /**
  * Server Components için Supabase client oluşturur
@@ -39,17 +41,12 @@ export async function createClient() {
   // - createServerClient, bu cookie'leri okuyup otomatik olarak session'ı yönetir
   const cookieStore = await cookies();
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL bulunamadı! .env.local dosyasını kontrol edin.');
-  }
-  
-  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY bulunamadı! .env.local dosyasını kontrol edin.');
-  }
+  const supabaseUrl = getSupabaseUrl();
+  const supabaseAnonKey = getSupabaseAnonKey();
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  return createServerClient<Database>(
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         // Neden getAll ve setAll kullanıyoruz?

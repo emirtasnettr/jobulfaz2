@@ -6,26 +6,26 @@
  */
 
 import { createClient as createServiceClient } from '@supabase/supabase-js';
+import type { Database } from './types';
+import { getSupabaseUrl, getSupabaseServiceRoleKey } from '@/lib/env';
 
-let cachedAdminClient: ReturnType<typeof createServiceClient> | null = null;
+type SupabaseAdminClient = ReturnType<typeof createServiceClient<Database>>;
+
+let cachedAdminClient: SupabaseAdminClient | null = null;
 
 /**
  * Cache'lenmiş admin client'ı döndürür
  * İlk çağrıda oluşturur, sonraki çağrılarda cache'den döner
  */
-export function getAdminClient() {
+export function getAdminClient(): SupabaseAdminClient {
   if (cachedAdminClient) {
     return cachedAdminClient;
   }
 
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = getSupabaseServiceRoleKey();
+  const supabaseUrl = getSupabaseUrl();
 
-  if (!serviceRoleKey || !supabaseUrl) {
-    throw new Error('Supabase admin credentials not configured');
-  }
-
-  cachedAdminClient = createServiceClient(
+  cachedAdminClient = createServiceClient<Database>(
     supabaseUrl,
     serviceRoleKey,
     {

@@ -9,8 +9,11 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
 import { Profile } from '@/types/database';
+import { upsertRow } from '@/lib/supabase/helpers';
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -96,23 +99,19 @@ export async function POST(request: NextRequest) {
     const userId = authUser.user.id;
 
     // Profile oluştur veya güncelle (RLS bypass ile)
-    const profileResult = await (supabaseAdmin
-      .from('profiles') as any)
-      .upsert(
-        {
-          id: userId,
-          full_name: full_name,
-          role: 'CUSTOMER',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: 'id',
-        }
-      )
-      .select()
-      .single();
-    const { data: profileData, error: profileCreateError } = profileResult as { data: Profile | null; error: any };
+    const { data: profileData, error: profileCreateError } = await upsertRow(
+      supabaseAdmin,
+      'profiles',
+      {
+        id: userId,
+        full_name: full_name,
+        role: 'CUSTOMER',
+        middleman_id: null,
+        is_active: true,
+        application_status: null,
+      },
+      'id'
+    );
 
     if (profileCreateError || !profileData) {
       console.error('Error creating profile:', profileCreateError);
@@ -138,8 +137,9 @@ export async function POST(request: NextRequest) {
       },
       message: 'Customer created successfully',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in create-customer API:', error);
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

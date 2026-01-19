@@ -4,32 +4,16 @@
  * Service Role API kullanarak yeni aday kullanıcısı oluşturur
  */
 
-import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { Profile, CandidateInfo } from '@/types/database';
+import { getAdminClient } from '@/lib/supabase/admin-client';
+import { Profile } from '@/types/database';
+import { updateRow, insertRow, upsertRow } from '@/lib/supabase/helpers';
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse> {
   try {
-    // Environment variables kontrolü
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl) {
-      console.error('NEXT_PUBLIC_SUPABASE_URL is not set');
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
-
-    if (!supabaseServiceRoleKey) {
-      console.error('SUPABASE_SERVICE_ROLE_KEY is not set');
-      return NextResponse.json(
-        { error: 'Service Role Key is not configured. Please add SUPABASE_SERVICE_ROLE_KEY to your .env.local file.' },
-        { status: 500 }
-      );
-    }
     // Middleman kontrolü
     const supabase = await createServerClient();
     const {
@@ -62,12 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Service Role client oluştur (RLS'i bypass eder)
-    const supabaseAdmin = createClient(supabaseUrl!, supabaseServiceRoleKey!, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    });
+    const supabaseAdmin = getAdminClient();
 
     // Yeni kullanıcı oluştur
     const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -92,25 +71,31 @@ export async function POST(request: NextRequest) {
     // Kısa bir bekleme ekleyelim (trigger'ın çalışması için)
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const { error: profileError } = await (supabaseAdmin
-      .from('profiles') as any)
-      .update({
+    const { error: profileError } = await updateRow(
+      supabaseAdmin,
+      'profiles',
+      authUser.user.id,
+      {
         middleman_id: profile.id,
         full_name: fullName,
-      })
-      .eq('id', authUser.user.id);
+      }
+    );
 
     if (profileError) {
       console.error('Error updating profile:', profileError);
       // Eğer profile yoksa, manuel oluştur
-      const { error: insertError } = await (supabaseAdmin
-        .from('profiles') as any)
-        .insert({
+      const { error: insertError } = await insertRow(
+        supabaseAdmin,
+        'profiles',
+        {
           id: authUser.user.id,
           full_name: fullName,
           role: 'CANDIDATE',
           middleman_id: profile.id,
-        });
+          is_active: true,
+          application_status: 'NEW_APPLICATION',
+        }
+      );
 
       if (insertError) {
         console.error('Error inserting profile:', insertError);
@@ -125,12 +110,25 @@ export async function POST(request: NextRequest) {
 
     // Email'i candidate_info'ya kaydet
     await new Promise((resolve) => setTimeout(resolve, 200));
-    const { error: candidateInfoError } = await (supabaseAdmin
-      .from('candidate_info') as any)
-      .upsert({
+    const { error: candidateInfoError } = await upsertRow(
+      supabaseAdmin,
+      'candidate_info',
+      {
         profile_id: authUser.user.id,
         email: email,
-      }, { onConflict: 'profile_id' });
+        phone: null,
+        city: null,
+        district: null,
+        address: null,
+        date_of_birth: null,
+        national_id: null,
+        education_level: null,
+        experience_years: 0,
+        skills: [],
+        languages: [],
+      },
+      'profile_id'
+    );
 
     if (candidateInfoError) {
       console.error('Error saving email to candidate_info:', candidateInfoError);
@@ -142,10 +140,11 @@ export async function POST(request: NextRequest) {
       userId: authUser.user.id,
       email: authUser.user.email,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in create-candidate API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Sunucu hatası';
     return NextResponse.json(
-      { error: error.message || 'Sunucu hatası' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
