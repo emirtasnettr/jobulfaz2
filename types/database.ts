@@ -99,3 +99,15 @@ export interface SiteSettings {
   created_at: string;
   updated_at: string;
 }
+
+export interface HeroSlider {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  link_url: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

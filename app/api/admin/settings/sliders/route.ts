@@ -8,7 +8,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin-client';
-import { Profile } from '@/types/database';
+import { Profile, HeroSlider } from '@/types/database';
 
 // GET: Tüm sliderları getir
 export async function GET() {
@@ -146,8 +146,8 @@ export async function POST(request: Request) {
     
     console.log('Insert data:', insertData);
 
-    const { data: newSlider, error: insertError } = await supabaseAdmin
-      .from('hero_sliders')
+    const { data: newSlider, error: insertError } = await (supabaseAdmin
+      .from('hero_sliders') as any)
       .insert(insertData)
       .select()
       .single();
@@ -237,8 +237,8 @@ export async function PUT(request: Request) {
     if (is_active !== undefined) updateData.is_active = is_active;
 
     // Slider güncelle
-    const { data: updatedSlider, error: updateError } = await supabaseAdmin
-      .from('hero_sliders')
+    const { data: updatedSlider, error: updateError } = await (supabaseAdmin
+      .from('hero_sliders') as any)
       .update(updateData)
       .eq('id', id)
       .select()
