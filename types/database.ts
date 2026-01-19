@@ -9,6 +9,7 @@ export interface Profile {
   full_name: string | null;
   role: UserRole;
   middleman_id: string | null;
+  is_active: boolean | null;
   created_at: string;
   updated_at: string;
 }

@@ -58,8 +58,8 @@ export async function PUT(
     // Üyeliği pasif/aktif etme
     if (isActive !== undefined) {
       // Profiles tablosunda is_active kolonunu güncelle
-      const { error: profileUpdateError } = await supabaseAdmin
-        .from('profiles')
+      const { error: profileUpdateError } = await (supabaseAdmin
+        .from('profiles') as any)
         .update({ is_active: isActive })
         .eq('id', id);
 
