@@ -47,7 +47,7 @@ export async function GET() {
     // Tüm profilleri al (RLS bypass)
     const { data: profiles, error: profilesError } = await supabaseAdmin
       .from('profiles')
-      .select('*')
+      .select<Profile>('*')
       .order('created_at', { ascending: false });
 
     if (profilesError) {
