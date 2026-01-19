@@ -41,42 +41,50 @@ export interface Database {
     Tables: {
       profiles: {
         Row: Profile;
-        Insert: Omit<Profile, 'created_at' | 'updated_at'>;
+        // Insert: id optional çünkü UUID otomatik oluşturulur, created_at/updated_at otomatik
+        Insert: Omit<Profile, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
       };
       documents: {
         Row: Document;
-        Insert: Omit<Document, 'created_at' | 'updated_at'>;
+        // Insert: id optional çünkü UUID otomatik oluşturulur
+        Insert: Omit<Document, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<Document, 'id' | 'created_at' | 'updated_at'>>;
       };
       hero_sliders: {
         Row: HeroSlider;
-        Insert: Omit<HeroSlider, 'created_at' | 'updated_at'>;
+        // Insert: id optional çünkü UUID otomatik oluşturulur
+        Insert: Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<HeroSlider, 'id' | 'created_at' | 'updated_at'>>;
       };
       site_settings: {
         Row: SiteSettings;
+        // Insert: id manuel verilmeli (özel UUID kullanılıyor)
         Insert: Omit<SiteSettings, 'created_at' | 'updated_at'>;
         Update: Partial<Omit<SiteSettings, 'id' | 'created_at' | 'updated_at'>>;
       };
       candidate_info: {
         Row: CandidateInfo;
-        Insert: Omit<CandidateInfo, 'created_at' | 'updated_at'>;
+        // Insert: id optional, profile_id zorunlu
+        Insert: Omit<CandidateInfo, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<CandidateInfo, 'id' | 'created_at' | 'updated_at'>>;
       };
       job_postings: {
         Row: JobPosting;
-        Insert: Omit<JobPosting, 'created_at' | 'updated_at'>;
+        // Insert: id optional çünkü UUID otomatik oluşturulur
+        Insert: Omit<JobPosting, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>>;
       };
       job_assignments: {
         Row: JobAssignment;
-        Insert: Omit<JobAssignment, 'created_at' | 'updated_at'>;
+        // Insert: id optional çünkü UUID otomatik oluşturulur
+        Insert: Omit<JobAssignment, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<JobAssignment, 'id' | 'created_at' | 'updated_at'>>;
       };
       customer_info: {
         Row: CustomerInfo;
-        Insert: Omit<CustomerInfo, 'created_at' | 'updated_at'>;
+        // Insert: id optional, profile_id zorunlu
+        Insert: Omit<CustomerInfo, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Omit<CustomerInfo, 'id' | 'created_at' | 'updated_at'>>;
       };
     };
