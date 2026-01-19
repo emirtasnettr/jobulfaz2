@@ -149,11 +149,12 @@ export async function POST(request: Request) {
     
     console.log('Insert data:', insertData);
 
-    const { data: newSlider, error: insertError } = await (supabaseAdmin
+    const sliderResult = await (supabaseAdmin
       .from('hero_sliders') as any)
       .insert(insertData)
       .select()
       .single();
+    const { data: newSlider, error: insertError } = sliderResult as { data: HeroSlider | null; error: any };
 
     if (insertError) {
       console.error('❌ INSERT ERROR:', insertError);
@@ -240,12 +241,13 @@ export async function PUT(request: Request) {
     if (is_active !== undefined) updateData.is_active = is_active;
 
     // Slider güncelle
-    const { data: updatedSlider, error: updateError } = await (supabaseAdmin
+    const sliderResult = await (supabaseAdmin
       .from('hero_sliders') as any)
       .update(updateData)
       .eq('id', id)
       .select()
       .single();
+    const { data: updatedSlider, error: updateError } = sliderResult as { data: HeroSlider | null; error: any };
 
     if (updateError) {
       return NextResponse.json(

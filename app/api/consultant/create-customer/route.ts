@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     const userId = authUser.user.id;
 
     // Profile oluştur veya güncelle (RLS bypass ile)
-    const { data: profileData, error: profileCreateError } = await (supabaseAdmin
+    const profileResult = await (supabaseAdmin
       .from('profiles') as any)
       .upsert(
         {
@@ -111,7 +111,8 @@ export async function POST(request: NextRequest) {
         }
       )
       .select()
-      .single<Profile>();
+      .single();
+    const { data: profileData, error: profileCreateError } = profileResult as { data: Profile | null; error: any };
 
     if (profileCreateError || !profileData) {
       console.error('Error creating profile:', profileCreateError);

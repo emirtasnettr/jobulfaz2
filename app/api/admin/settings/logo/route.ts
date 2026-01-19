@@ -72,11 +72,12 @@ export async function POST(request: Request) {
 
     // Site settings'e kaydet (RLS bypass ile)
     // Önce mevcut kaydı kontrol et
-    const { data: existing } = await (supabaseAdmin
+    const existingResult = await (supabaseAdmin
       .from('site_settings') as any)
       .select('id')
       .eq('id', '00000000-0000-0000-0000-000000000001')
       .single();
+    const { data: existing } = existingResult as { data: { id: string } | null; error: any };
 
     let updateError;
     if (existing) {
