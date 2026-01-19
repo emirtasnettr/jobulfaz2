@@ -57,14 +57,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
 
-    // Kullanıcı zaten var mı kontrol et
+    // Kullanıcı zaten var mı kontrol et (listUsers ile)
     try {
-      const { data: existingUser } = await supabaseAdmin.auth.admin.getUserByEmail(email);
-      if (existingUser?.user) {
-        return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
+      const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+      if (!listError && usersData?.users) {
+        const existingUser = usersData.users.find(u => u.email === email);
+        if (existingUser) {
+          return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
+        }
       }
     } catch (error) {
-      // Kullanıcı bulunamadıysa devam et (yeni kullanıcı oluşturulabilir)
+      // Kullanıcı listesi alınamadıysa devam et (yeni kullanıcı oluşturulabilir)
+      console.log('Could not check existing users, proceeding with creation');
     }
 
     // Supabase Auth API ile müşteri kullanıcısı oluştur
