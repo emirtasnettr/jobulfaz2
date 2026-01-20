@@ -31,15 +31,15 @@ export default function Home() {
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex">
-            <a href="#features" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+            <Link href="/features" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               Özellikler
-            </a>
-            <a href="#how" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+            </Link>
+            <Link href="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               Nasıl Çalışır?
-            </a>
-            <a href="#roles" className="text-sm font-medium text-gray-600 hover:text-gray-900">
-              Roller
-            </a>
+            </Link>
+            <Link href="/why-jobulai" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+              Neden JobulAI
+            </Link>
             <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               Hakkımızda
             </Link>
@@ -63,15 +63,15 @@ export default function Home() {
               Menü
             </summary>
             <div className="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
-              <a href="#features" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              <Link href="/features" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Özellikler
-              </a>
-              <a href="#how" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              </Link>
+              <Link href="/how-it-works" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Nasıl Çalışır?
-              </a>
-              <a href="#roles" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                Roller
-              </a>
+              </Link>
+              <Link href="/why-jobulai" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                Neden JobulAI
+              </Link>
               <Link href="/about" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Hakkımızda
               </Link>
@@ -157,9 +157,9 @@ export default function Home() {
                 <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
                 <div className="ml-3 text-xs font-semibold text-gray-600">JobulAI Dashboard (Önizleme)</div>
               </div>
-              <div className="p-5">
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-8 space-y-3">
+              <div className="p-4 sm:p-5">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                  <div className="space-y-3 lg:col-span-8">
                     <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -170,7 +170,7 @@ export default function Home() {
                           CURRENT
                         </span>
                       </div>
-                      <div className="mt-3 grid grid-cols-3 gap-2">
+                      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                         <div className="rounded-xl bg-white p-3">
                           <div className="text-[11px] text-gray-500">Çalışma</div>
                           <div className="text-sm font-semibold text-gray-900">09:00–17:00</div>
@@ -208,8 +208,8 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="col-span-4">
-                    <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white p-4">
+                  <div className="lg:col-span-4">
+                    <div className="rounded-2xl border border-gray-200 bg-white p-4 lg:sticky lg:top-24">
                       <div className="text-sm font-semibold text-gray-900">Maliyet Özeti</div>
                       <div className="mt-3 space-y-2">
                         <div className="flex items-center justify-between text-sm">
@@ -408,7 +408,7 @@ export default function Home() {
             <div className="max-w-2xl">
               <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Hemen başlayın</h2>
               <p className="mt-3 text-lg text-gray-600">
-                Mevcut hesabınız varsa giriş yapın; yeniyseniz kayıt olup rolünüze göre panele yönlenin.
+                İster ilan oluşturun, ister fırsatları takip edin — birkaç dakikada başlayın.
               </p>
             </div>
             <div className="flex gap-3">
@@ -421,15 +421,34 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
             {[
-              { title: 'Müşteri Paneli', desc: 'İlan oluştur, maliyetleri gör, aday bilgilerini takip et.' },
-              { title: 'Danışman Paneli', desc: 'İlanları değerlendir, aday ata, onay sürecini yönet.' },
-              { title: 'Aday Paneli', desc: 'Fırsatları kabul/red ver, çalışma saatlerini takvimde gör.' },
+              {
+                title: 'Müşteri Paneli',
+                desc: 'İlanınızı hızlıca oluşturun, maliyetleri net görün ve kabul eden adayların iletişim bilgilerine erişin.',
+                bullets: ['İlan oluşturma', 'Maliyet özeti (KDV + hizmet bedeli)', 'Kabul eden aday listesi'],
+              },
+              {
+                title: 'Aday Paneli',
+                desc: 'Gelen fırsatları inceleyin, kabul/red verin ve çalışma saatlerinizi haftalık takvimde takip edin.',
+                bullets: ['Fırsat kabul / red (gerekçeli)', 'Gün-gün çalışma saatleri', 'Takvim görünümü'],
+              },
             ].map((r) => (
               <div key={r.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md">
                 <div className="text-base font-extrabold text-gray-900">{r.title}</div>
                 <div className="mt-2 text-sm leading-relaxed text-gray-600">{r.desc}</div>
+                <ul className="mt-4 space-y-2">
+                  {r.bullets.map((b) => (
+                    <li key={b} className="flex items-start gap-2 text-sm text-gray-700">
+                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
                 <div className="mt-4">
                   <Link href="/auth/login" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
                     Panele git →

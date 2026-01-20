@@ -8,9 +8,9 @@ import Link from 'next/link';
 
 export default function RegisterSuccessPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
           {/* Success Icon */}
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
             <svg
@@ -29,7 +29,7 @@ export default function RegisterSuccessPage() {
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Kayıt İşlemi Başarılı! 🎉
+            Kayıt İşlemi Başarılı
           </h1>
 
           <p className="text-gray-600 mb-6">
@@ -47,14 +47,14 @@ export default function RegisterSuccessPage() {
           <div className="space-y-3">
             <Link
               href="/auth/login"
-              className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+              className="block w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 text-sm font-semibold text-white shadow-sm hover:from-blue-700 hover:to-indigo-700 transition"
             >
               Giriş Sayfasına Git
             </Link>
 
             <Link
               href="/"
-              className="block w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+              className="block w-full rounded-xl border border-gray-300 bg-white py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50 transition"
             >
               Ana Sayfaya Dön
             </Link>

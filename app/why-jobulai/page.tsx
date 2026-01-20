@@ -1,10 +1,9 @@
 import Link from 'next/link';
 import Footer from '@/components/footer';
 
-export default function AboutPage() {
+export default function WhyJobulAIPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* Header (homepage style) */}
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="group inline-flex items-center gap-2">
@@ -37,10 +36,10 @@ export default function AboutPage() {
             <Link href="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               Nasıl Çalışır?
             </Link>
-            <Link href="/why-jobulai" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+            <Link href="/why-jobulai" className="text-sm font-medium text-gray-900">
               Neden JobulAI
             </Link>
-            <Link href="/about" className="text-sm font-medium text-gray-900">
+            <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               Hakkımızda
             </Link>
           </nav>
@@ -57,7 +56,6 @@ export default function AboutPage() {
             </Link>
           </div>
 
-          {/* Mobile menu (no JS) */}
           <details className="relative md:hidden">
             <summary className="list-none rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
               Menü
@@ -69,10 +67,10 @@ export default function AboutPage() {
               <Link href="/how-it-works" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Nasıl Çalışır?
               </Link>
-              <Link href="/why-jobulai" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              <Link href="/why-jobulai" className="block rounded-lg px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
                 Neden JobulAI
               </Link>
-              <Link href="/about" className="block rounded-lg px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+              <Link href="/about" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Hakkımızda
               </Link>
               <div className="my-2 h-px bg-gray-100" />
@@ -91,7 +89,6 @@ export default function AboutPage() {
       </header>
 
       <main>
-        {/* Hero */}
         <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -top-24 left-1/2 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-blue-200/30 blur-3xl" />
@@ -102,63 +99,61 @@ export default function AboutPage() {
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm">
                 <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                Kurumsal tanıtım
+                Kurumsal faydalar
               </div>
-
               <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
-                JobulAI hakkında
+                Neden JobulAI?
                 <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  daha net, daha hızlı süreçler
+                  daha az karmaşa, daha net takip
                 </span>
               </h1>
-
               <p className="mt-4 text-lg leading-relaxed text-gray-600">
-                JobulAI; iş ilanı oluşturma, operasyonel onay, aday atama ve takvim takibini tek panelde birleştirir.
-                Amaç: süreçleri şeffaf, ölçülebilir ve kolay yönetilebilir hale getirmek.
+                Süreçlerin dağılmasını engeller; maliyet, durum ve planlamayı tek ekranda görünür kılar. Hem operasyon hem de iletişim
+                standardize olur.
               </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Link
-                  href="/auth/register"
-                  className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:from-blue-700 hover:to-indigo-700"
-                >
-                  Ücretsiz Başla
-                </Link>
-                <Link
-                  href="/#features"
-                  className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50"
-                >
-                  Özellikleri gör
-                </Link>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* What we do */}
         <section className="bg-white py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">Ne yapıyoruz?</h2>
-              <p className="mt-3 text-lg text-gray-600">
-                İlanın açılmasından adayın vardiyasına kadar olan akışı tek yerde topluyoruz.
-              </p>
-            </div>
-
-            <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {[
                 {
-                  title: 'Tek akış',
-                  desc: 'İlan → onay → atama → aday yanıtı → takvim. Kopuk süreç yok.',
+                  title: 'Şeffaf maliyet yapısı',
+                  desc: 'KDV, hizmet bedeli ve toplam maliyet net; karar vermek kolay.',
                 },
                 {
-                  title: 'Şeffaf maliyet',
-                  desc: 'KDV, hizmet bedeli ve toplam maliyet net; sürpriz yok.',
+                  title: 'Uçtan uca izlenebilirlik',
+                  desc: 'İlan, atama, aday yanıtı ve takvim tek akış; durumlar kaybolmaz.',
                 },
                 {
-                  title: 'Takvim & görünürlük',
-                  desc: 'Saatlik/haftalık plan ile kimin ne zaman çalıştığı netleşir.',
+                  title: 'Operasyonel hız',
+                  desc: 'Tek panel, daha az manuel takip; daha hızlı aksiyon.',
                 },
+              ].map((c) => (
+                <div key={c.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md">
+                  <div className="text-base font-extrabold text-gray-900">{c.title}</div>
+                  <div className="mt-2 text-sm leading-relaxed text-gray-600">{c.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-gradient-to-b from-white to-gray-50 py-14">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">Kurumsal standartlar</h2>
+              <p className="mt-3 text-lg text-gray-600">Görünürlük, kontrol ve disiplin.</p>
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { title: 'Yetkilendirme', desc: 'Rol bazlı paneller ve erişim kontrolü.' },
+                { title: 'Denetlenebilirlik', desc: 'Yanıtlar ve durumlar kayıtlı ve takip edilebilir.' },
+                { title: 'Planlama', desc: 'Takvim görünümü ile vardiya netliği.' },
+                { title: 'Kullanılabilirlik', desc: 'Sade arayüz, mobil uyum, net hiyerarşi.' },
               ].map((x) => (
                 <div key={x.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                   <div className="text-base font-extrabold text-gray-900">{x.title}</div>
@@ -169,72 +164,23 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Mission / Vision */}
-        <section className="bg-gradient-to-b from-white to-gray-50 py-14">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-                <div className="text-sm font-semibold text-blue-700">Misyon</div>
-                <div className="mt-2 text-2xl font-extrabold text-gray-900">Süreçleri sadeleştirmek</div>
-                <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                  İşe alım ve operasyon süreçlerini herkes için anlaşılır, izlenebilir ve hızlı hale getirmek.
-                </p>
-              </div>
-              <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-                <div className="text-sm font-semibold text-indigo-700">Vizyon</div>
-                <div className="mt-2 text-2xl font-extrabold text-gray-900">Kurumsal standartta takip</div>
-                <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                  Doğru aday–doğru iş eşleşmesini, şeffaf maliyet ve takvim görünürlüğüyle standart hale getirmek.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Values */}
-        <section className="bg-white py-14">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">Değerlerimiz</h2>
-              <p className="mt-3 text-lg text-gray-600">Ürünü bu prensiplerle geliştiriyoruz.</p>
-            </div>
-
-            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { title: 'Şeffaflık', desc: 'Maliyet, süre ve durumlar net şekilde görünür.' },
-                { title: 'Güven', desc: 'Rol bazlı erişim ve kontrollü süreç adımları.' },
-                { title: 'Hız', desc: 'Tek ekranda yönetim: daha az yazışma, daha çok aksiyon.' },
-                { title: 'Kullanılabilirlik', desc: 'Sade arayüz, net hiyerarşi, mobil uyumluluk.' },
-              ].map((v) => (
-                <div key={v.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                  <div className="text-base font-extrabold text-gray-900">{v.title}</div>
-                  <div className="mt-2 text-sm leading-relaxed text-gray-600">{v.desc}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="bg-gradient-to-b from-white to-gray-50 py-16">
+        <section className="bg-white py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm lg:p-10">
               <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
                 <div>
                   <div className="text-sm font-semibold text-gray-900">Hemen başlayın</div>
-                  <h3 className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900">
-                    Süreci tek panelde yönetin.
-                  </h3>
+                  <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900">Süreci tek panelde toplayın.</h2>
                   <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                    JobulAI ile ilan açma, maliyet özeti ve takvim takibini birkaç adımda devreye alın.
+                    Kurumsal takip, şeffaf maliyet ve takvim görünürlüğü ile yönetimi standart hale getirin.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                   <Link
-                    href="/auth/login"
+                    href="/features"
                     className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50"
                   >
-                    Giriş Yap
+                    Özellikler
                   </Link>
                   <Link
                     href="/auth/register"
@@ -253,3 +199,4 @@ export default function AboutPage() {
     </div>
   );
 }
+

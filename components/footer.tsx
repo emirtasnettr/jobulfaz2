@@ -46,10 +46,22 @@ export default function Footer() {
             <h4 className="text-gray-900 font-extrabold text-lg mb-6">Hızlı Linkler</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#how" className="text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 group">
+                <Link href="/features" className="text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Özellikler
+                </Link>
+              </li>
+              <li>
+                <Link href="/how-it-works" className="text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 group">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                   Nasıl Çalışır?
-                </a>
+                </Link>
+              </li>
+              <li>
+                <Link href="/why-jobulai" className="text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Neden JobulAI
+                </Link>
               </li>
               <li>
                 <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 group">

@@ -1631,26 +1631,16 @@ export default function CandidateDashboardPage() {
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => handleAcceptJob(assignment.id)}
-                                  disabled={processing}
-                                  className="text-green-600 hover:text-green-800 text-sm font-medium disabled:opacity-50"
-                                >
-                                  Kabul Et
-                                </button>
-                                <span className="text-gray-300">|</span>
-                                <button
-                                  onClick={() => {
-                                    setSelectedJobAssignment(assignment);
-                                    setShowRejectModal(true);
-                                  }}
-                                  disabled={processing}
-                                  className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
-                                >
-                                  Reddet
-                                </button>
-                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedDate(new Date());
+                                  setJobDetailModalOpen(true);
+                                  setSelectedJobAssignment(assignment);
+                                }}
+                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                              >
+                                Detay
+                              </button>
                             </td>
                           </tr>
                         );
