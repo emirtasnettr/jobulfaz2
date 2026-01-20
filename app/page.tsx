@@ -315,7 +315,7 @@ export default function Home() {
               },
               {
                 title: 'Atama & Onay',
-                desc: 'Danışman aday atar, aday kabul/red verir; müşteri bilgilenir.',
+                desc: 'Adaylar fırsatı görür, kabul/red verir; tüm durumlar panelde izlenir.',
                 icon: (
                   <path
                     d="M20 6 9 17l-5-5"
@@ -364,39 +364,67 @@ export default function Home() {
           <div className="max-w-2xl">
             <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Nasıl çalışır?</h2>
             <p className="mt-3 text-lg text-gray-600">
-              Akış basit: müşteri ilan açar, danışman süreci yönetir, aday kabul/red verir; her şey panelde görünür.
+              Akış basit: müşteri ilan açar, aday detayları inceler ve kabul/red verir; vardiyalar takvimde görünür.
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {[
-              {
-                title: 'Müşteri',
-                steps: ['İlanı oluştur', 'Bütçe & çalışma saatlerini gir', 'Onay/aktif fırsatları takip et'],
-              },
-              {
-                title: 'Danışman',
-                steps: ['İlanı kontrol et', 'Uygun adayları ata', 'Onayla / süreç mesajlarını yönet'],
-              },
-              {
-                title: 'Aday',
-                steps: ['Fırsatı incele', 'Kabul veya gerekçeli red ver', 'Takvimde vardiyalarını gör'],
-              },
-            ].map((c) => (
-              <div key={c.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="text-lg font-extrabold text-gray-900">{c.title}</div>
-                <ol className="mt-4 space-y-3">
-                  {c.steps.map((s, idx) => (
-                    <li key={s} className="flex items-start gap-3">
-                      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-xs font-extrabold text-white">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm text-gray-700">{s}</span>
-                    </li>
-                  ))}
-                </ol>
+          <div className="relative mt-10">
+            <div className="pointer-events-none absolute -left-10 -top-8 h-24 w-24 rounded-3xl bg-gradient-to-br from-blue-600/15 to-indigo-600/10 blur-xl" />
+            <div className="pointer-events-none absolute -right-10 -bottom-8 h-24 w-24 rounded-3xl bg-gradient-to-br from-indigo-600/15 to-blue-600/10 blur-xl" />
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {[
+                {
+                  title: 'Müşteri',
+                  subtitle: 'İlan oluşturma ve takip',
+                  steps: ['İlanı oluştur', 'Bütçe & çalışma saatlerini gir', 'Onay/aktif fırsatları takip et'],
+                  accent: 'from-blue-600 to-indigo-600',
+                },
+                {
+                  title: 'Aday',
+                  subtitle: 'Kabul / red ve takvim',
+                  steps: ['Fırsatı incele', 'Kabul veya gerekçeli red ver', 'Takvimde vardiyalarını gör'],
+                  accent: 'from-emerald-600 to-teal-600',
+                },
+              ].map((c) => (
+                <div key={c.title} className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-lg font-extrabold text-gray-900">{c.title}</div>
+                      <div className="mt-1 text-sm text-gray-600">{c.subtitle}</div>
+                    </div>
+                    <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br ${c.accent} text-white shadow-sm`}>
+                      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  </div>
+
+                  <ol className="mt-5 space-y-3">
+                    {c.steps.map((s, idx) => (
+                      <li key={s} className="flex items-start gap-3">
+                        <span className={`mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${c.accent} text-xs font-extrabold text-white`}>
+                          {idx + 1}
+                        </span>
+                        <span className="text-sm text-gray-700">{s}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-gray-600">
+                Daha detaylı akış için “Nasıl Çalışır?” sayfasına göz atın.
               </div>
-            ))}
+              <Link
+                href="/how-it-works"
+                className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+              >
+                Nasıl Çalışır? →
+              </Link>
+            </div>
           </div>
         </div>
       </section>

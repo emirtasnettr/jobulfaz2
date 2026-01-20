@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+import { OneSignalScripts } from "@/components/onesignal/OneSignalScripts";
+import { OneSignalSubscribePrompt } from "@/components/onesignal/OneSignalSubscribePrompt";
 
 const montserrat = Montserrat({
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -28,7 +30,9 @@ export default function RootLayout({
         className={`${montserrat.variable} antialiased`}
         suppressHydrationWarning
       >
+        <OneSignalScripts />
         {children}
+        <OneSignalSubscribePrompt />
       </body>
     </html>
   );
