@@ -363,10 +363,10 @@ export default function JobPostingDetailPage() {
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900 mb-3">{jobPosting.title}</h1>
                 <div className="flex items-center gap-3 flex-wrap">
-                  {getStatusBadge(jobPosting.status)}
+                {getStatusBadge(jobPosting.status)}
                   <span className="text-sm text-gray-600">
-                    Oluşturulma: {formatDate(jobPosting.created_at)}
-                  </span>
+                  Oluşturulma: {formatDate(jobPosting.created_at)}
+                </span>
                 </div>
               </div>
             </div>
@@ -377,34 +377,34 @@ export default function JobPostingDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Sol Kolon - Ana Bilgiler */}
               <div className="lg:col-span-2 space-y-5">
-                {/* Görev */}
-                {jobPosting.task && (
+            {/* Görev */}
+            {jobPosting.task && (
                   <div className="bg-gray-50 rounded-xl p-5">
                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Görev</h3>
                     <p className="text-gray-900 text-base leading-relaxed">{jobPosting.task}</p>
-                  </div>
-                )}
+              </div>
+            )}
 
-                {/* Açıklama */}
+            {/* Açıklama */}
                 <div className="bg-gray-50 rounded-xl p-5">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Fırsat Açıklaması</h3>
                   <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">
-                    {jobPosting.description || 'Açıklama girilmemiş'}
-                  </p>
-                </div>
+                  {jobPosting.description || 'Açıklama girilmemiş'}
+                </p>
+            </div>
 
-                {/* Temel Bilgiler */}
+            {/* Temel Bilgiler */}
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5">
                   <h3 className="text-sm font-semibold text-gray-700 mb-4">Temel Bilgiler</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
+            <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">İş Tipi</label>
-                      <p className="text-base font-semibold text-gray-900">{getJobTypeLabel(jobPosting.job_type)}</p>
-                    </div>
+                  <p className="text-base font-semibold text-gray-900">{getJobTypeLabel(jobPosting.job_type)}</p>
+                </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Kişi Sayısı</label>
-                      <p className="text-base font-semibold text-gray-900">{jobPosting.required_count} kişi</p>
-                    </div>
+                  <p className="text-base font-semibold text-gray-900">{jobPosting.required_count} kişi</p>
+                </div>
                     {jobPosting.city && (
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">İl</label>
@@ -415,29 +415,29 @@ export default function JobPostingDetailPage() {
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">İlçe</label>
                         <p className="text-base font-semibold text-gray-900">{jobPosting.district}</p>
-                      </div>
-                    )}
-                  </div>
                 </div>
+                    )}
+              </div>
+            </div>
 
-                {/* İş Tipine Göre Tarih Bilgileri */}
-                {jobPosting.job_type === 'FULL_TIME' && (
+            {/* İş Tipine Göre Tarih Bilgileri */}
+            {jobPosting.job_type === 'FULL_TIME' && (
                   <div className="bg-white border border-gray-200 rounded-xl p-5">
                     <h3 className="text-sm font-semibold text-gray-700 mb-4">Sözleşme Bilgileri</h3>
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
+              <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Başlangıç Tarihi</label>
-                        <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.contract_start_date)}</p>
-                      </div>
+                    <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.contract_start_date)}</p>
+                  </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Bitiş Tarihi</label>
-                        <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.contract_end_date)}</p>
-                      </div>
-                    </div>
+                    <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.contract_end_date)}</p>
                   </div>
-                )}
+                </div>
+              </div>
+            )}
 
-                {jobPosting.job_type === 'PART_TIME' && (
+            {jobPosting.job_type === 'PART_TIME' && (
                   <>
                     <div className="bg-white border border-gray-200 rounded-xl p-5">
                       <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
@@ -447,16 +447,16 @@ export default function JobPostingDetailPage() {
                         Gün Aralığı Bilgileri
                       </h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <div>
+              <div>
                           <label className="block text-xs font-medium text-gray-600 mb-1">Başlangıç Tarihi</label>
-                          <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.part_time_start_date)}</p>
-                        </div>
+                    <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.part_time_start_date)}</p>
+                  </div>
                         <div>
                           <label className="block text-xs font-medium text-gray-600 mb-1">Bitiş Tarihi</label>
-                          <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.part_time_end_date)}</p>
-                        </div>
-                      </div>
-                    </div>
+                    <p className="text-base font-semibold text-gray-900">{formatDate(jobPosting.part_time_end_date)}</p>
+                  </div>
+                </div>
+              </div>
 
                     {/* Çalışma Saatleri */}
                     {jobPosting.working_hours && jobPosting.part_time_start_date && jobPosting.part_time_end_date && (() => {
@@ -545,17 +545,17 @@ export default function JobPostingDetailPage() {
                       );
                     })()}
                   </>
-                )}
+            )}
 
-                {jobPosting.job_type === 'SEASONAL' && (
+            {jobPosting.job_type === 'SEASONAL' && (
                   <div className="bg-white border border-gray-200 rounded-xl p-5">
                     <h3 className="text-sm font-semibold text-gray-700 mb-4">Dönemsel Bilgiler</h3>
-                    <div>
+              <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Dönemsel Süre</label>
-                      <p className="text-base font-semibold text-gray-900">{jobPosting.seasonal_period_months} ay</p>
-                    </div>
-                  </div>
-                )}
+                  <p className="text-base font-semibold text-gray-900">{jobPosting.seasonal_period_months} ay</p>
+                </div>
+              </div>
+            )}
 
                 {/* Kabul Eden Adaylar */}
                 {acceptedCandidates.length > 0 && (
@@ -611,7 +611,7 @@ export default function JobPostingDetailPage() {
 
               {/* Sağ Kolon - Özet Bilgiler */}
               <div className="lg:col-span-1 space-y-5">
-                {/* Maliyet Bilgileri */}
+            {/* Maliyet Bilgileri */}
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5 sticky top-24">
                   <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                     <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -620,14 +620,14 @@ export default function JobPostingDetailPage() {
                     Maliyet Özeti
                   </h3>
                   <div className="space-y-3">
-                    {jobPosting.job_type === 'FULL_TIME' && (() => {
-                      const monthlyCost = calculateMonthlyCost(jobPosting) || 0;
+                  {jobPosting.job_type === 'FULL_TIME' && (() => {
+                    const monthlyCost = calculateMonthlyCost(jobPosting) || 0;
                       const serviceFee = monthlyCost * 0.12;
                       const baseForVAT = monthlyCost + serviceFee;
                       const vatAmount = baseForVAT * 0.20;
                       const totalWithVAT = monthlyCost + serviceFee + vatAmount;
-                      return (
-                        <>
+                    return (
+                      <>
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">Aylık Kişi Başı:</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(jobPosting.monthly_budget_per_person)}</span>
@@ -635,22 +635,22 @@ export default function JobPostingDetailPage() {
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">KDV Hariç:</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(monthlyCost)}</span>
-                          </div>
+                        </div>
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">Hizmet (%12):</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(serviceFee)}</span>
-                          </div>
+                        </div>
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">KDV (%20):</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(vatAmount)}</span>
-                          </div>
+                        </div>
                           <div className="flex justify-between items-center pt-3 border-t border-blue-300 mt-3">
                             <span className="font-semibold text-gray-900">Toplam:</span>
-                            <span className="text-lg font-bold text-blue-600">{formatCurrency(totalWithVAT)}</span>
-                          </div>
-                        </>
-                      );
-                    })()}
+                          <span className="text-lg font-bold text-blue-600">{formatCurrency(totalWithVAT)}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
 
                     {jobPosting.job_type === 'PART_TIME' && (() => {
                       const totalCostWithoutVAT = calculateTotalCost(jobPosting) || 0;
@@ -664,20 +664,20 @@ export default function JobPostingDetailPage() {
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">Saatlik Kişi Başı:</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(jobPosting.hourly_budget_per_person)}</span>
-                          </div>
-                          {jobPosting.part_time_start_date && jobPosting.part_time_end_date && (
-                            <>
+                      </div>
+                      {jobPosting.part_time_start_date && jobPosting.part_time_end_date && (
+                        <>
                               <div className="flex justify-between items-center text-sm">
                                 <span className="text-gray-600">Toplam Gün:</span>
                                 <span className="font-semibold text-gray-900">
-                                  {(() => {
-                                    const startDate = new Date(jobPosting.part_time_start_date);
-                                    const endDate = new Date(jobPosting.part_time_end_date);
-                                    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                                    return `${daysDiff} gün`;
-                                  })()}
-                                </span>
-                              </div>
+                              {(() => {
+                                const startDate = new Date(jobPosting.part_time_start_date);
+                                const endDate = new Date(jobPosting.part_time_end_date);
+                                const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                return `${daysDiff} gün`;
+                              })()}
+                            </span>
+                          </div>
                               <div className="flex justify-between items-center text-sm">
                                 <span className="text-gray-600">Toplam Saat:</span>
                                 <span className="font-semibold text-gray-900">
@@ -699,10 +699,10 @@ export default function JobPostingDetailPage() {
                               <div className="flex justify-between items-center pt-3 border-t border-blue-300 mt-3">
                                 <span className="font-semibold text-gray-900">Toplam:</span>
                                 <span className="text-lg font-bold text-blue-600">{formatCurrency(totalCostWithVAT)}</span>
-                              </div>
-                            </>
-                          )}
+                          </div>
                         </>
+                      )}
+                    </>
                       );
                     })()}
 
@@ -714,7 +714,7 @@ export default function JobPostingDetailPage() {
                       const totalCostWithVAT = totalCostWithoutVAT + serviceFee + vatAmount;
                       
                       return (
-                        <>
+                    <>
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">Aylık Kişi Başı:</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(jobPosting.monthly_budget_per_person)}</span>
@@ -730,29 +730,29 @@ export default function JobPostingDetailPage() {
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">Hizmet (%12):</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(serviceFee)}</span>
-                          </div>
+                      </div>
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">KDV (%20):</span>
                             <span className="font-semibold text-gray-900">{formatCurrency(vatAmount)}</span>
-                          </div>
+                      </div>
                           <div className="flex justify-between items-center pt-3 border-t border-blue-300 mt-3">
                             <span className="font-semibold text-gray-900">Toplam:</span>
                             <span className="text-lg font-bold text-blue-600">{formatCurrency(totalCostWithVAT)}</span>
-                          </div>
-                        </>
+                      </div>
+                    </>
                       );
                     })()}
-                  </div>
-                </div>
+              </div>
+            </div>
 
-                {/* Action Buttons */}
+            {/* Action Buttons */}
                 <div className="pt-5">
-                  <Link
-                    href="/dashboard/customer"
+              <Link
+                href="/dashboard/customer"
                     className="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold text-center block"
-                  >
-                    Geri Dön
-                  </Link>
+              >
+                Geri Dön
+              </Link>
                 </div>
               </div>
             </div>

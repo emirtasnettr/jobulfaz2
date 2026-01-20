@@ -1,334 +1,442 @@
-'use client';
-
 import Link from 'next/link';
 import Footer from '@/components/footer';
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      {/* Modern Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <img
-                src="https://i.hizliresim.com/nvytmdi.png"
-                alt="Joblin Logo"
-                className="h-8 w-auto"
-                loading="eager"
-              />
-            </Link>
+    <div className="min-h-screen bg-white text-gray-900">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="group inline-flex items-center gap-2">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M7 18V8.5a2.5 2.5 0 0 1 2.5-2.5H12a5 5 0 0 1 0 10H7Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M14.5 10.5h2a2.5 2.5 0 0 1 0 5h-2"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+            <span className="text-sm font-semibold tracking-tight">
+              JobulAI
+              <span className="ml-1 text-xs font-medium text-gray-400 group-hover:text-gray-500">Platform</span>
+            </span>
+          </Link>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              <a href="#why-joblin" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                Neden Joblin.net?
+          <nav className="hidden items-center gap-8 md:flex">
+            <a href="#features" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+              Özellikler
+            </a>
+            <a href="#how" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+              Nasıl Çalışır?
+            </a>
+            <a href="#roles" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+              Roller
+            </a>
+            <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+              Hakkımızda
+            </Link>
+          </nav>
+
+          <div className="hidden items-center gap-3 md:flex">
+            <Link href="/auth/login" className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+              Giriş Yap
+            </Link>
+            <Link
+              href="/auth/register"
+              className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:from-blue-700 hover:to-indigo-700"
+            >
+              Ücretsiz Başla
+            </Link>
+          </div>
+
+          {/* Mobile menu (no JS) */}
+          <details className="relative md:hidden">
+            <summary className="list-none rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+              Menü
+            </summary>
+            <div className="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
+              <a href="#features" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                Özellikler
               </a>
-              <a href="#how-it-works" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+              <a href="#how" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Nasıl Çalışır?
               </a>
-              <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+              <a href="#roles" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                Roller
+              </a>
+              <Link href="/about" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Hakkımızda
               </Link>
-            </nav>
-
-            {/* CTA Buttons */}
-            <div className="flex items-center gap-3">
-              <Link
-                href="/auth/login"
-                className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
+              <div className="my-2 h-px bg-gray-100" />
+              <Link href="/auth/login" className="block rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
                 Giriş Yap
               </Link>
               <Link
                 href="/auth/register"
-                className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                className="mt-1 block rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm"
               >
                 Ücretsiz Başla
               </Link>
             </div>
-          </div>
+          </details>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 pt-24 pb-32">
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -mr-48 -mt-48"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl -ml-48 -mb-48"></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Sol Taraf - Metin ve Butonlar */}
-            <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl text-gray-900 mb-6 leading-tight">
-                <span className="font-light">Sen İşi Değil,</span><br />
-                <span className="font-bold">İş Seni Bulsun</span>
-              </h1>
-              <p className="text-xl sm:text-2xl text-gray-600 mb-10 leading-relaxed">
-                Dakikalar içinde üye ol,<br />
-                sana en uygun fırsatları kaçırma.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/auth/register"
-                  className="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 text-center"
-                >
-                  Fırsatları Yakala
-                </Link>
-                <Link
-                  href="/auth/register?type=employer"
-                  className="px-8 py-4 text-lg font-semibold text-gray-900 bg-white border-2 border-gray-300 rounded-xl hover:border-blue-500 hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
-                >
-                  Fırsat Oluştur
-                </Link>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 left-1/2 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-blue-200/30 blur-3xl" />
+          <div className="absolute -bottom-24 left-1/3 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-indigo-200/25 blur-3xl" />
+        </div>
+
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              İlan → Onay → Atama → Takvim: tek akış
+            </div>
+
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+              İş ilanı yönetimini
+              <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                profesyonel ve hızlı
+              </span>
+              hale getirin.
+            </h1>
+
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-gray-600">
+              JobulAI; müşteri, danışman ve aday akışlarını aynı platformda toplar. Tarih/saat bazlı çalışma planı,
+              maliyet özeti ve aday takvimi ile süreçler net, izlenebilir ve düzenli olur.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                href="/auth/register"
+                className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:from-blue-700 hover:to-indigo-700"
+              >
+                Ücretsiz Hesap Oluştur
+              </Link>
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+              >
+                Giriş Yap
+              </Link>
+            </div>
+
+            <div className="mt-10 grid grid-cols-3 gap-6">
+              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                <div className="text-sm font-semibold text-gray-900">Dakikalar içinde</div>
+                <div className="mt-1 text-xs text-gray-500">İlan oluştur & yayınla</div>
+              </div>
+              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                <div className="text-sm font-semibold text-gray-900">Şeffaf maliyet</div>
+                <div className="mt-1 text-xs text-gray-500">KDV & hizmet bedeli</div>
+              </div>
+              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                <div className="text-sm font-semibold text-gray-900">Takvim görünümü</div>
+                <div className="mt-1 text-xs text-gray-500">Saatlik haftalık plan</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Product mock */}
+          <div className="relative">
+            <div className="rounded-3xl border border-gray-200 bg-white shadow-xl">
+              <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-4">
+                <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+                <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
+                <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+                <div className="ml-3 text-xs font-semibold text-gray-600">JobulAI Dashboard (Önizleme)</div>
+              </div>
+              <div className="p-5">
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-8 space-y-3">
+                    <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900">İlan Bilgileri</div>
+                          <div className="mt-1 text-xs text-gray-600">İl/İlçe • Tarih • Saat • Kişi sayısı</div>
+                        </div>
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm">
+                          CURRENT
+                        </span>
+                      </div>
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        <div className="rounded-xl bg-white p-3">
+                          <div className="text-[11px] text-gray-500">Çalışma</div>
+                          <div className="text-sm font-semibold text-gray-900">09:00–17:00</div>
+                        </div>
+                        <div className="rounded-xl bg-white p-3">
+                          <div className="text-[11px] text-gray-500">Toplam</div>
+                          <div className="text-sm font-semibold text-gray-900">16 saat</div>
+                        </div>
+                        <div className="rounded-xl bg-white p-3">
+                          <div className="text-[11px] text-gray-500">Kişi</div>
+                          <div className="text-sm font-semibold text-gray-900">2</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-semibold text-gray-900">Adaylar</div>
+                        <div className="text-xs text-gray-500">Kabul edenler listesi</div>
+                      </div>
+                      <div className="mt-3 space-y-2">
+                        <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
+                          <div className="text-sm font-semibold text-gray-800">Aday • Ad Soyad</div>
+                          <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
+                            ACCEPTED
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
+                          <div className="text-sm font-semibold text-gray-800">Aday • Ad Soyad</div>
+                          <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-700">
+                            PENDING
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-span-4">
+                    <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white p-4">
+                      <div className="text-sm font-semibold text-gray-900">Maliyet Özeti</div>
+                      <div className="mt-3 space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">KDV Hariç</span>
+                          <span className="font-semibold text-gray-900">₺ 12.000</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Hizmet Bedeli</span>
+                          <span className="font-semibold text-gray-900">₺ 1.440</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">KDV</span>
+                          <span className="font-semibold text-gray-900">₺ 2.688</span>
+                        </div>
+                        <div className="my-2 h-px bg-gray-100" />
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-900 font-semibold">Toplam</span>
+                          <span className="font-extrabold text-gray-900">₺ 16.128</span>
+                        </div>
+                        <Link
+                          href="/auth/login"
+                          className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-black"
+                        >
+                          Panele Git
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Sağ Taraf - Görsel Alan */}
-            <div className="relative">
-              <div className="relative bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl p-8 shadow-2xl overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-200/30 rounded-full blur-3xl -ml-32 -mb-32"></div>
-                
-                {/* Görsel */}
-                <div className="relative z-10 bg-white rounded-2xl p-4 overflow-hidden">
-                  <img
-                    src="https://yzqzgpnzwiwkoimfjzmu.supabase.co/storage/v1/object/public/program_documents/Joblin-sigortali.png"
-                    alt="Joblin"
-                    className="w-full h-auto rounded-xl object-contain"
+            <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-3xl bg-gradient-to-br from-blue-600/20 to-indigo-600/20 blur-xl" />
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              Daha hızlı süreç, daha net bilgi.
+            </h2>
+            <p className="mt-3 text-lg text-gray-600">
+              İlan oluşturma, onay, aday atama ve aday takvimi gibi kritik adımları sade bir arayüzle yönetin.
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                title: 'Tarih/Saat Bazlı Plan',
+                desc: 'Part-time işler için gün gün çalışma saatlerini tanımlayın.',
+                icon: (
+                  <path
+                    d="M8 7V3m8 4V3M5 11h14M7 21h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
+                ),
+              },
+              {
+                title: 'Maliyet Özeti',
+                desc: 'KDV, hizmet bedeli ve toplam maliyeti otomatik hesaplayın.',
+                icon: (
+                  <path
+                    d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H7"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ),
+              },
+              {
+                title: 'Rol Bazlı Akış',
+                desc: 'Müşteri, danışman ve aday ekranları birbirini tamamlar.',
+                icon: (
+                  <path
+                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87M19 11a4 4 0 0 0 0-8"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ),
+              },
+              {
+                title: 'Aday Takvimi',
+                desc: 'Adaylar işlerini haftalık saatlik takvimde görür.',
+                icon: (
+                  <path
+                    d="M12 8v5l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ),
+              },
+              {
+                title: 'Atama & Onay',
+                desc: 'Danışman aday atar, aday kabul/red verir; müşteri bilgilenir.',
+                icon: (
+                  <path
+                    d="M20 6 9 17l-5-5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ),
+              },
+              {
+                title: 'Güvenli Oturum',
+                desc: 'Supabase Auth ile güvenli giriş ve rol kontrolü.',
+                icon: (
+                  <path
+                    d="M12 1 3 5v6c0 5 3 9 9 12 6-3 9-7 9-12V5l-9-4Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ),
+              },
+            ].map((f) => (
+              <div key={f.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm">
+                    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      {f.icon}
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-base font-bold text-gray-900">{f.title}</div>
+                    <div className="mt-1 text-sm leading-relaxed text-gray-600">{f.desc}</div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Value Proposition Section */}
-      <section id="why-joblin" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Neden Joblin?
-            </h2>
+      {/* How it works */}
+      <section id="how" className="bg-gradient-to-b from-white to-gray-50 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Nasıl çalışır?</h2>
+            <p className="mt-3 text-lg text-gray-600">
+              Akış basit: müşteri ilan açar, danışman süreci yönetir, aday kabul/red verir; her şey panelde görünür.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Hızlı */}
-            <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200 hover:shadow-xl transition-all">
-              <div className="text-5xl mb-4">⚡</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Hızlı</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Dakikalar içinde ilanları görüntüle,<br />
-                tek tıkla başvur.
+          <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            {[
+              {
+                title: 'Müşteri',
+                steps: ['İlanı oluştur', 'Bütçe & çalışma saatlerini gir', 'Onay/aktif fırsatları takip et'],
+              },
+              {
+                title: 'Danışman',
+                steps: ['İlanı kontrol et', 'Uygun adayları ata', 'Onayla / süreç mesajlarını yönet'],
+              },
+              {
+                title: 'Aday',
+                steps: ['Fırsatı incele', 'Kabul veya gerekçeli red ver', 'Takvimde vardiyalarını gör'],
+              },
+            ].map((c) => (
+              <div key={c.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="text-lg font-extrabold text-gray-900">{c.title}</div>
+                <ol className="mt-4 space-y-3">
+                  {c.steps.map((s, idx) => (
+                    <li key={s} className="flex items-start gap-3">
+                      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-xs font-extrabold text-white">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm text-gray-700">{s}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Roles CTA */}
+      <section id="roles" className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Hemen başlayın</h2>
+              <p className="mt-3 text-lg text-gray-600">
+                Mevcut hesabınız varsa giriş yapın; yeniyseniz kayıt olup rolünüze göre panele yönlenin.
               </p>
             </div>
-
-            {/* Doğru Eşleşme */}
-            <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200 hover:shadow-xl transition-all">
-              <div className="text-5xl mb-4">🎯</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Doğru Eşleşme</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Filtrelenmiş ilanlar sayesinde<br />
-                sana uygun işler önüne gelsin.
-              </p>
-            </div>
-
-            {/* Güvenli */}
-            <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-green-50 to-green-100/50 border border-green-200 hover:shadow-xl transition-all">
-              <div className="text-5xl mb-4">🔒</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Güvenli</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Onaylı firmalar, gerçek ilanlar,<br />
-                şeffaf başvuru süreci.
-              </p>
+            <div className="flex gap-3">
+              <Link href="/auth/login" className="rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50">
+                Giriş Yap
+              </Link>
+              <Link href="/auth/register" className="rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-black">
+                Kayıt Ol
+              </Link>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-24 bg-gradient-to-br from-gray-50 to-blue-50/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Nasıl Çalışır?
-            </h2>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* İş Arayanlar İçin */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <div className="text-center mb-8">
-                <div className="text-5xl mb-4">👤</div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-2">İş Arayanlar İçin</h3>
-              </div>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-                    1
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Ücretsiz kayıt ol</h4>
-                    <p className="text-gray-600 text-sm">Hemen başla, hiçbir ücret yok</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-                    2
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Profilini oluştur</h4>
-                    <p className="text-gray-600 text-sm">Bilgilerini ekle, belgelerini yükle</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">İşlere anında başvur</h4>
-                    <p className="text-gray-600 text-sm">Tek tıkla başvuru yap, hızlı başvur</p>
-                  </div>
+          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              { title: 'Müşteri Paneli', desc: 'İlan oluştur, maliyetleri gör, aday bilgilerini takip et.' },
+              { title: 'Danışman Paneli', desc: 'İlanları değerlendir, aday ata, onay sürecini yönet.' },
+              { title: 'Aday Paneli', desc: 'Fırsatları kabul/red ver, çalışma saatlerini takvimde gör.' },
+            ].map((r) => (
+              <div key={r.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md">
+                <div className="text-base font-extrabold text-gray-900">{r.title}</div>
+                <div className="mt-2 text-sm leading-relaxed text-gray-600">{r.desc}</div>
+                <div className="mt-4">
+                  <Link href="/auth/login" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                    Panele git →
+                  </Link>
                 </div>
               </div>
-            </div>
-
-            {/* İşverenler İçin */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <div className="text-center mb-8">
-                <div className="text-5xl mb-4">🏢</div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-2">İşverenler İçin</h3>
-              </div>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold">
-                    1
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">İlanını oluştur</h4>
-                    <p className="text-gray-600 text-sm">İlanını hemen yayınla</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold">
-                    2
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Doğru adaylara ulaş</h4>
-                    <p className="text-gray-600 text-sm">İlana göz at, filtrele</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Hızla işe al</h4>
-                    <p className="text-gray-600 text-sm">Başvuruları değerlendir, başvurunu takip et</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-gray-600 text-lg mb-8">Binlerce ilan, tek platform.</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200 hover:shadow-lg transition-all cursor-pointer">
-              <div className="text-4xl mb-3">💼</div>
-              <h3 className="font-semibold text-gray-900">Ofis & Kurumsal</h3>
-            </div>
-            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100/50 border border-orange-200 hover:shadow-lg transition-all cursor-pointer">
-              <div className="text-4xl mb-3">🏗️</div>
-              <h3 className="font-semibold text-gray-900">İnşaat & Teknik</h3>
-            </div>
-            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 border border-green-200 hover:shadow-lg transition-all cursor-pointer">
-              <div className="text-4xl mb-3">🛒</div>
-              <h3 className="font-semibold text-gray-900">Perakende</h3>
-            </div>
-            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200 hover:shadow-lg transition-all cursor-pointer">
-              <div className="text-4xl mb-3">🍽️</div>
-              <h3 className="font-semibold text-gray-900">Hizmet & Restoran</h3>
-            </div>
-            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200 hover:shadow-lg transition-all cursor-pointer">
-              <div className="text-4xl mb-3">🚚</div>
-              <h3 className="font-semibold text-gray-900">Lojistik</h3>
-            </div>
-            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200 hover:shadow-lg transition-all cursor-pointer">
-              <div className="text-4xl mb-3">💻</div>
-              <h3 className="font-semibold text-gray-900">IT & Dijital</h3>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust & Social Proof Section */}
-      <section id="benefits" className="py-24 bg-gradient-to-br from-gray-50 to-blue-50/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Binlerce kişi Joblin ile işini buldu
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-8 bg-white rounded-2xl shadow-lg">
-              <div className="text-4xl mb-4">✅</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Gerçek firmalar</h3>
-              <p className="text-gray-600">Onaylı ve güvenilir işverenler</p>
-            </div>
-            <div className="text-center p-8 bg-white rounded-2xl shadow-lg">
-              <div className="text-4xl mb-4">🔄</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Güncel ilanlar</h3>
-              <p className="text-gray-600">Her gün yeni fırsatlar</p>
-            </div>
-            <div className="text-center p-8 bg-white rounded-2xl shadow-lg">
-              <div className="text-4xl mb-4">🛡️</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Spam'siz başvuru sistemi</h3>
-              <p className="text-gray-600">Sadece gerçek iş fırsatları</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-12 md:p-16 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
-            
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                İş Bulma Yolculuğunuza Bugün Başlayın
-              </h2>
-              <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Binlerce iş arayanımıza katılın ve hayalinizdeki işe bir adım daha yaklaşın.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href="/auth/register"
-                  className="px-8 py-4 text-lg font-semibold text-blue-600 bg-white rounded-xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                >
-                  Ücretsiz kayıt ol
-                </Link>
-                <Link
-                  href="/auth/login"
-                  className="px-8 py-4 text-lg font-semibold text-white border-2 border-white/30 rounded-xl hover:bg-white/10 transition-all duration-300"
-                >
-                  Giriş Yap
-                </Link>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
