@@ -37,6 +37,10 @@ export function OneSignalScripts() {
               appId: ${JSON.stringify(APP_ID)},
               safari_web_id: ${JSON.stringify(SAFARI_WEB_ID)},
               notifyButton: { enable: true },
+              // Service worker dosyalarını ve scope'u açıkça belirtelim (özellikle prod'da path/scope uyuşmazlığına karşı)
+              serviceWorkerPath: '/OneSignalSDKWorker.js',
+              serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
+              serviceWorkerParam: { scope: '/' },
               // Local ortamda (localhost) Web Push test edebilmek için
               allowLocalhostAsSecureOrigin: isLocal,
               // Custom Code kullandığınız için prompt'u otomatik tetiklemiyoruz.
