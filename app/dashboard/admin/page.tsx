@@ -349,7 +349,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    Admin dashboard'unuza hoş geldiniz. Buradan tüm kullanıcıları yönetebilir ve sistem ayarlarını değiştirebilirsiniz.
+                    Admin dashboard'unuza hoş geldiniz. Buradan tüm kullanıcıları yönetebilirsiniz.
                   </p>
                 </div>
               </div>
@@ -439,7 +439,7 @@ export default function AdminDashboardPage() {
                 <p className="text-xs text-gray-400 mt-0.5">Sık kullanılan işlemlere hızlı erişim</p>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <Link
                 href="/dashboard/admin/users"
                 className="group p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 hover:border-blue-200 hover:shadow-sm transition-all duration-200"
@@ -457,29 +457,6 @@ export default function AdminDashboardPage() {
                     <p className="text-sm text-gray-500 leading-relaxed">Tüm kullanıcıları görüntüle, düzenle ve yönet</p>
                   </div>
                   <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
-
-              <Link
-                href="/dashboard/admin/settings"
-                className="group p-5 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 hover:border-purple-200 hover:shadow-sm transition-all duration-200"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-purple-500 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
-                      Sistem Ayarları
-                    </h4>
-                    <p className="text-sm text-gray-500 leading-relaxed">Logo ve site ayarlarını yönet</p>
-                  </div>
-                  <svg className="w-5 h-5 text-gray-400 group-hover:text-purple-500 transform group-hover:translate-x-1 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
